@@ -1,4 +1,5 @@
-![img.png](img.png)
+
+![image](https://github.com/user-attachments/assets/ebd28ab9-452b-45ac-b845-6e833fa2a7b2)
 
 Restful Web Service - Previous Year Question Bank (PYQ)
 Project Setup Guide
@@ -55,4 +56,13 @@ properties
 Copy code
 # Server port configuration
 server.port=8000
+
+
 You're All Set! 🎉
+---
+
+  # ER Diagram 
+
+
+![entityManagerFactory(EntityManagerFactoryBuilder, PersistenceManagedTypes)](https://github.com/user-attachments/assets/38b2cc16-98f7-451d-b459-09c459d5b871)
+
