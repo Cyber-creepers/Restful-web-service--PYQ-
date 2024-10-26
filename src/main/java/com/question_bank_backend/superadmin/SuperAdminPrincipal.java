@@ -49,6 +49,6 @@ public class SuperAdminPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return superAdminEntity.getOtpverification().getStatus().equals("ACTIVE");
     }
 }

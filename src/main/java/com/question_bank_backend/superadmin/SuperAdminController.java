@@ -12,6 +12,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 public class SuperAdminController {
 
 
-     JwtUtils jwtUtils;
+    JwtUtils jwtUtils;
     SuperAdminService superAdminService;
 
     AuthenticationManager authenticationManager;
@@ -70,25 +71,17 @@ public class SuperAdminController {
 
     @PutMapping(path = "/login")
     public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
-      /*  SuperAdminDto superAdminDto = superAdminService.login(email, password);
-
-        if (superAdminDto != null) {
-            return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, "Super Admin Login Successfully", superAdminDto);
-        } else {
-            return MyResponseHandler.generateResponse(HttpStatus.NOT_EXTENDED, true, "Super Admin Login Failed", null);
-        }*/
 
         Authentication authentication;
 
-
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        }catch (AuthenticationException e){
-            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND,true,e.getMessage(),null);
+        } catch (AuthenticationException e) {
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
         }
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails= (UserDetails) authentication.getPrincipal();
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
 
@@ -96,9 +89,7 @@ public class SuperAdminController {
 
         SuperAdminLoginResponse superAdminLoginResponse = new SuperAdminLoginResponse(jwtToken, userDetails.getUsername(), roles);
 
-        return MyResponseHandler.generateResponse(HttpStatus.OK,false, userDetails.getUsername() +" : Login Success",superAdminLoginResponse);
-
-
+        return MyResponseHandler.generateResponse(HttpStatus.OK, false, userDetails.getUsername() + " : Login Success", superAdminLoginResponse);
 
 
     }
@@ -124,6 +115,7 @@ public class SuperAdminController {
             return MyResponseHandler.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, true, message, null);
         }
     }
+
 
 
 }

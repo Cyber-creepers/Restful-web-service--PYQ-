@@ -32,7 +32,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     public AuthTokenFilter( UserDetailsService userDetailsService) {
-        //this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
     }
 
@@ -42,10 +41,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
-        if (path.equals("/api/v1/superAdmin/register") || path.equals("/api/v1/superAdmin/login")) {
-            filterChain.doFilter(request, response); // Skip the filter for these paths
-            return;
-        }
 
         logger.debug("AuthTokenFilter called for URI: {}", request.getRequestURI());
         try {

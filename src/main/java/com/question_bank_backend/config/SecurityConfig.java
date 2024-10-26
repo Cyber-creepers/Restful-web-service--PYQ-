@@ -1,6 +1,5 @@
 package com.question_bank_backend.config;
 
-import com.question_bank_backend.jwt.AuthEntryPointJwt;
 import com.question_bank_backend.jwt.AuthTokenFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -31,15 +30,12 @@ public class SecurityConfig {
 
     DataSource dataSource;
 
-    AuthEntryPointJwt unauthorizedHandler;
-
 
     BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public SecurityConfig(UserDetailsService userDetailService, DataSource dataSource, AuthEntryPointJwt unauthorizedHandler, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public SecurityConfig(UserDetailsService userDetailService, DataSource dataSource, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.userDetailService = userDetailService;
         this.dataSource = dataSource;
-        this.unauthorizedHandler = unauthorizedHandler;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
@@ -50,43 +46,17 @@ public class SecurityConfig {
         return httpSecurity.
                 csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**"
-                        ,"/api/v1/superAdmin/login","/api/v1/superAdmin/register").permitAll()
+                        ,"/api/v1/superAdmin/login","/api/v1/superAdmin/register"
+                        ,"/api/v1/superAdmin/verifyAccount","/api/v1/superAdmin/regenerate-otp"
+                        ,"/api/v1/superAdmin/forget-password").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
-             /*   .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))*/
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .headers(headers -> headers.frameOptions(frameOptions -> frameOptions.sameOrigin()))
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
 
-
-
-   /* @Bean
-    SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-        http.authorizeHttpRequests(authorizeRequests ->
-                authorizeRequests.requestMatchers("/h2-console/**").permitAll()
-                        .requestMatchers("/signin").permitAll()
-                        .anyRequest().authenticated());
-        http.sessionManagement(
-                session ->
-                        session.sessionCreationPolicy(
-                                SessionCreationPolicy.STATELESS)
-        );
-        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
-        //http.httpBasic(withDefaults());
-        http.headers(headers -> headers
-                .frameOptions(frameOptions -> frameOptions
-                        .sameOrigin()
-                )
-        );
-        http.csrf(csrf -> csrf.disable());
-        http.addFilterBefore(authenticationJwtTokenFilter(),
-                UsernamePasswordAuthenticationFilter.class);
-
-
-        return http.build();
-    }*/
 
 
     @Bean
