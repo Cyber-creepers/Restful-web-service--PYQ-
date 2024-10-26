@@ -56,7 +56,13 @@ properties
 Copy code
 # Server port configuration
 server.port=8000
+
+
 You're All Set! 🎉
+---
+
+  # ER Diagram 
+
 
 ![entityManagerFactory(EntityManagerFactoryBuilder, PersistenceManagedTypes)](https://github.com/user-attachments/assets/38b2cc16-98f7-451d-b459-09c459d5b871)
 
