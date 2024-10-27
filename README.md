@@ -55,7 +55,7 @@ http://localhost:8000/swagger-ui/index.html
 properties
 Copy code
 # Server port configuration
-server.port=8000
+server.port= configure_it if Bydefault : 8000
 
 You're All Set! 🎉
 ---
