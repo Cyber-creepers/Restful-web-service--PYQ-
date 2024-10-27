@@ -75,7 +75,7 @@ public class JwtUtils {
             logger.error("JWT claims string is empty: {}", e.getMessage());
             throw new RuntimeException("JWT claims string is empty");
         } catch (Exception e) {
-            logger.error("JWT exception : {}" + e.getMessage());
+            logger.error("JWT exception : {}" , e.getMessage());
             throw new RuntimeException("JWT exception :" + e.getMessage());
         }
 

@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,22 +19,16 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
-import static org.aspectj.weaver.tools.cache.SimpleCacheFactory.path;
-
 @Component
+@NoArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     JwtUtils jwtUtils;
 
+    @Autowired
     UserDetailsService userDetailsService;
 
-    public AuthTokenFilter() {
-    }
-
-    public AuthTokenFilter( UserDetailsService userDetailsService) {
-        this.userDetailsService = userDetailsService;
-    }
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
