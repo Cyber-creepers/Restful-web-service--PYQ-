@@ -127,11 +127,11 @@ public class AdminServiceImp  implements AdminService
     {
       AdminEntity adminEntity=  adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with this email '"+email+"' do not exist"));
 
-          try {
+         /* try {
               emailUtil.setPasswordEmail(email);
           }catch (MessagingException e){
               throw new RuntimeException("Unable to send email please try again");
-          }
+          }*/
 
        return "Please check your email to set new Password";
     }

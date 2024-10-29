@@ -18,4 +18,6 @@ public interface SuperAdminService extends UserDetailsService {
 
     String setPassword(String email, String newPassword);
 
+    String changePassword(String otp, String newPassword,String email);
+
 }

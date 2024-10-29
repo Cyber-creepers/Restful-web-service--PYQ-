@@ -100,7 +100,7 @@ public class SuperAdminController {
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.OK, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, null, null);
         }
     }
 
@@ -112,7 +112,17 @@ public class SuperAdminController {
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, true, null, null);
+        }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Object> changePassword(@RequestHeader String otp, @RequestHeader String newPassword, @RequestHeader String email){
+        String message=superAdminService.changePassword(otp,newPassword,email);
+        if(message!=null){
+            return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
+        }else {
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, null, null);
         }
     }
 

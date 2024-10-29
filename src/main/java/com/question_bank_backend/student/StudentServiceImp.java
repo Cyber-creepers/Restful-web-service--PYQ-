@@ -128,11 +128,11 @@ public class StudentServiceImp implements StudentService {
     public String forgetPassword(String email) {
         StudentEntity studentEntity = studentRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with email " + email + "' does not exist"));
 
-        try {
+      /*  try {
             emailUtil.setPasswordEmail(email);
         } catch (MessagingException e) {
             throw new RuntimeException("Unable to send email please try again");
-        }
+        }*/
 
         return "Please check your email to set new Password";
 

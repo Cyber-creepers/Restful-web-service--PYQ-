@@ -164,29 +164,62 @@ public class SuperAdminServiceImp implements SuperAdminService {
     @Override
     public String forgetPassword(String email) {
 
-        SuperAdminEntity superaDminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email " + email));
+        SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email " + email));
+        if (superAdminEntity!=null) {
 
+            StringBuilder otp = otpUtil.generateOtp();
+            String otpOutput = otp.toString();
 
-        try {
-            emailUtil.setPasswordEmail(email);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Unable to send email please try again");
+            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();
+            otpVerificationEntity.setOtp(otpOutput);
+            otpVerificationEntity.setSendTime(LocalDateTime.now());
+            superAdminRepository.save(superAdminEntity);
+
+            try {
+                emailUtil.setPasswordEmail(email,otpOutput);
+            } catch (MessagingException e) {
+                throw new RuntimeException("Unable to send email please try again");
+            }
+
+            return "Email send Successfully visit your mail for Further assistent ";
+
+        }else{
+            return "Failed to send Email For Forgot password ";
         }
 
-
-        return "Please check your email to set new Password";
     }
 
     @Override
     public String setPassword(String email, String password) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email " + email));
         if (superAdminEntity != null) {
-            superAdminEntity.setPassword(password);
+            superAdminEntity.setPassword(bCryptPasswordEncoder.encode(password));
             superAdminRepository.save(superAdminEntity);
             return "Password set successfully";
         } else {
             return "Failed to set password";
         }
+    }
+
+    @Override
+    public String changePassword(String otp, String newPassword, String email) {
+        SuperAdminEntity superAdminEntity=superAdminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found with this email '"+email+"' "));
+        if (superAdminEntity != null && superAdminEntity.getOtpverification().getOtp().equals(otp)
+                && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+
+
+            OtpVerificationEntity otpVerificationEntity=superAdminEntity.getOtpverification();
+            if (!otpVerificationEntity.getOtp().equals(otp)){
+                throw  new RuntimeException("Otp doesn't match");
+            }
+            otpVerificationEntity.setStatus("Verified");
+            superAdminEntity.setPassword(bCryptPasswordEncoder.encode(newPassword));
+            superAdminRepository.save(superAdminEntity);
+            return "Password Change Successfully Email ' : "+email+"' now you can login";
+        }else {
+            throw new RuntimeException("Please regenerate Otp and try again");
+        }
+
     }
 
 
