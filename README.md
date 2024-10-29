@@ -58,7 +58,7 @@ Copy code
 server.port=8000
 
 
-You're All Set! 🎉
+You're All Set! Thanku 🎉
 ---
 
   # ER Diagram 
