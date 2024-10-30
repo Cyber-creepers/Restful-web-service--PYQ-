@@ -1,9 +1,15 @@
 package com.question_bank_backend.superadmin;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.jwt.JwtUtils;
+import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.MyResponseHandler;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -11,8 +17,13 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,22 +32,35 @@ import java.util.stream.Collectors;
 public class SuperAdminController {
 
 
-    JwtUtils jwtUtils;
-    SuperAdminService superAdminService;
+    private final JwtUtils jwtUtils;
 
-    AuthenticationManager authenticationManager;
+    private final SuperAdminService superAdminService;
 
-    public SuperAdminController(SuperAdminService superAdminService, AuthenticationManager authenticationManager, JwtUtils jwtUtils) {
+    private final ObjectMapper objectMapper;
+
+    @Value("${project.profile-pic}")
+    private String profilePic;
+
+    private final AuthenticationManager authenticationManager;
+    private final FileUtil fileUtil;
+
+    public SuperAdminController(SuperAdminService superAdminService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, ObjectMapper objectMapper, FileUtil fileUtil) {
         this.superAdminService = superAdminService;
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
+        this.objectMapper = objectMapper;
+        this.fileUtil = fileUtil;
     }
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<Object> register(@RequestBody SuperAdminDto superAdminDto) {
+    public ResponseEntity<Object> register(@RequestPart MultipartFile file, @RequestPart String superAdminDto) throws IOException {
 
-        SuperAdminDto registerSuperAdmin = superAdminService.register(superAdminDto);
+        if (file.isEmpty()) {
+            throw new FileNotFoundException("File is empty! Please send another file!");
+        }
+
+        SuperAdminDto registerSuperAdmin = superAdminService.register(convertToSuperAdminDto(superAdminDto),file);
 
         if (registerSuperAdmin != null) {
             return MyResponseHandler.generateResponse(HttpStatus.CREATED, false, "Super Admin Created Successfully", registerSuperAdmin);
@@ -117,15 +141,38 @@ public class SuperAdminController {
     }
 
     @PutMapping("/change-password")
-    public ResponseEntity<Object> changePassword(@RequestHeader String otp, @RequestHeader String newPassword, @RequestHeader String email){
-        String message=superAdminService.changePassword(otp,newPassword,email);
-        if(message!=null){
+    public ResponseEntity<Object> changePassword(@RequestHeader String otp, @RequestHeader String newPassword, @RequestHeader String email) {
+        String message = superAdminService.changePassword(otp, newPassword, email);
+        if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
-        }else {
+        } else {
             return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, null, null);
         }
     }
 
+
+
+    @GetMapping("/download-pic")
+    public void serveFileHandler(HttpServletResponse response, @RequestParam String fileName) throws IOException {
+        InputStream resourceFile = fileUtil.getResourceFile(profilePic, fileName);
+        if (fileName.endsWith(".pdf")) {
+            response.setContentType(MediaType.APPLICATION_PDF_VALUE);
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        } else if (fileName.endsWith(".png")) {
+            response.setContentType(MediaType.IMAGE_PNG_VALUE);
+        } else {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE); // Default for unknown types
+        }
+        StreamUtils.copy(resourceFile, response.getOutputStream());
+
+    }
+
+
+        private SuperAdminDto convertToSuperAdminDto(String superAdminDto) throws JsonProcessingException {
+
+        return objectMapper.readValue(superAdminDto, SuperAdminDto.class);
+    }
 
 
 }

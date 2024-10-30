@@ -48,7 +48,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**"
                         ,"/api/v1/superAdmin/login","/api/v1/superAdmin/register"
                         ,"/api/v1/superAdmin/verifyAccount","/api/v1/superAdmin/regenerate-otp"
-                        ,"/api/v1/superAdmin/forget-password","/api/v1/superAdmin/change-password").permitAll()
+                        ,"/api/v1/superAdmin/forget-password","/api/v1/superAdmin/change-password",
+                                "/api/v1/superAdmin/download-pic").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

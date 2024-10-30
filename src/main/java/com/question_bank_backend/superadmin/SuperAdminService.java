@@ -2,17 +2,19 @@ package com.question_bank_backend.superadmin;
 
 
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
 
 public interface SuperAdminService extends UserDetailsService {
 
 
-    SuperAdminDto register(SuperAdminDto superAdminDto);
+    SuperAdminDto register(SuperAdminDto superAdminDto , MultipartFile file) throws IOException;
 
     String verifyAccount(String email, String otp);
 
     String regenerateOtp(String email);
-
-    SuperAdminDto login(String email, String password);
 
     String forgetPassword(String email);
 

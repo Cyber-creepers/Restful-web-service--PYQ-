@@ -17,7 +17,7 @@ public class AdminDto
 
     private Long phone_NO;
 
-    private byte[] photo;
+    private String photo;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

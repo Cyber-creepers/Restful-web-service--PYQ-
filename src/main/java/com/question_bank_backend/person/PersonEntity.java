@@ -25,10 +25,7 @@ public class PersonEntity {
 
     private Long phone_No;
 
-    @Lob
-    @Basic(fetch = FetchType.LAZY)
-    @Column(name = "Photo",length = 100000000)
-    private byte[] photo;
+    private String photo;
 
     private String password;
 

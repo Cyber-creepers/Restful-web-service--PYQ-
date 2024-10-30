@@ -16,7 +16,7 @@ public class StudentDto
 
    private Long phone_No;
 
-   private byte[] photo;
+   private String photo;
 
    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
    private String password;

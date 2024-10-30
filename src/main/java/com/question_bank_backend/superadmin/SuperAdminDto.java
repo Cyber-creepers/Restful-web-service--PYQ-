@@ -20,7 +20,9 @@ public class SuperAdminDto {
 
     private long phone_No;
 
-    private byte[] photo;
+    private String photo;
+
+    private String photoUrl;
 
 
 }
