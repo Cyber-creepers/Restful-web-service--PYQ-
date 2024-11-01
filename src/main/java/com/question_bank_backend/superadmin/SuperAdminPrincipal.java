@@ -19,7 +19,7 @@ public class SuperAdminPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("SUPER_ADMIN"));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
     }
 
     @Override

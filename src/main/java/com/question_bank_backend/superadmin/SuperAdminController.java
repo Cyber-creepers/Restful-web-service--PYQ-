@@ -11,12 +11,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -60,7 +63,7 @@ public class SuperAdminController {
             throw new FileNotFoundException("File is empty! Please send another file!");
         }
 
-        SuperAdminDto registerSuperAdmin = superAdminService.register(convertToSuperAdminDto(superAdminDto),file);
+        SuperAdminDto registerSuperAdmin = superAdminService.register(convertToSuperAdminDto(superAdminDto), file);
 
         if (registerSuperAdmin != null) {
             return MyResponseHandler.generateResponse(HttpStatus.CREATED, false, "Super Admin Created Successfully", registerSuperAdmin);
@@ -96,27 +99,58 @@ public class SuperAdminController {
     @PutMapping(path = "/login")
     public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
 
-        Authentication authentication;
+//        Authentication authentication;
+//
+//        try {
+//            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+//        } catch (AuthenticationException e) {
+//            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+//        }
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+//
+//        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
+//
+//        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
+//
+//        SuperAdminLoginResponse superAdminLoginResponse = new SuperAdminLoginResponse(jwtToken, userDetails.getUsername(), roles);
+//
+//        return MyResponseHandler.generateResponse(HttpStatus.OK, false, userDetails.getUsername() + " : Login Success", superAdminLoginResponse);
 
+        // Check if user exists by loading UserDetails
+        UserDetails userDetails;
         try {
-            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-        } catch (AuthenticationException e) {
-            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+            userDetails = superAdminService.loadUserByUsername(email);
+        } catch (UsernameNotFoundException e) {
+            // Return a relevant message if the user is not found
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, "User with this email not found", null);
         }
 
+        // Attempt authentication and handle wrong password case
+        Authentication authentication;
+        try {
+            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        } catch (BadCredentialsException e) {
+            // Return a relevant message if the password is incorrect
+            return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Incorrect password", null);
+        } catch (AuthenticationException e) {
+            // Return a generic authentication error message
+            return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Authentication failed", null);
+        }
+
+        // Set authentication context
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
+        // Generate JWT token and prepare response
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
-
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
-
         SuperAdminLoginResponse superAdminLoginResponse = new SuperAdminLoginResponse(jwtToken, userDetails.getUsername(), roles);
 
         return MyResponseHandler.generateResponse(HttpStatus.OK, false, userDetails.getUsername() + " : Login Success", superAdminLoginResponse);
-
-
     }
+
+
 
     @PutMapping(path = "/forget-password")
     public ResponseEntity<Object> forgetPassword(@RequestParam String email) {
@@ -128,6 +162,7 @@ public class SuperAdminController {
         }
     }
 
+    @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping(path = "/set-password")
     public ResponseEntity<Object> setPassword(@RequestParam String email, @RequestHeader String password) {
 
@@ -151,7 +186,6 @@ public class SuperAdminController {
     }
 
 
-
     @GetMapping("/download-pic")
     public void serveFileHandler(HttpServletResponse response, @RequestParam String fileName) throws IOException {
         InputStream resourceFile = fileUtil.getResourceFile(profilePic, fileName);
@@ -169,7 +203,7 @@ public class SuperAdminController {
     }
 
 
-        private SuperAdminDto convertToSuperAdminDto(String superAdminDto) throws JsonProcessingException {
+    private SuperAdminDto convertToSuperAdminDto(String superAdminDto) throws JsonProcessingException {
 
         return objectMapper.readValue(superAdminDto, SuperAdminDto.class);
     }

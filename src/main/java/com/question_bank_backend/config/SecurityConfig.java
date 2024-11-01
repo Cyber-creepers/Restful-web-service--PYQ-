@@ -1,6 +1,10 @@
 package com.question_bank_backend.config;
 
+import com.question_bank_backend.jwt.AuthEntryPoint;
 import com.question_bank_backend.jwt.AuthTokenFilter;
+import lombok.Getter;
+import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,12 +27,17 @@ import javax.sql.DataSource;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@Setter
+@Getter
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     UserDetailsService userDetailService;
 
     DataSource dataSource;
+
+    @Autowired
+    AuthEntryPoint authEntryPoint;
 
 
     BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -44,6 +53,7 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
 
         return httpSecurity.
+        exceptionHandling(exception->exception.authenticationEntryPoint(authEntryPoint)).
                 csrf(customizer -> customizer.disable())
                 .authorizeHttpRequests(request -> request.requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/actuator/**"
                         ,"/api/v1/superAdmin/login","/api/v1/superAdmin/register"
