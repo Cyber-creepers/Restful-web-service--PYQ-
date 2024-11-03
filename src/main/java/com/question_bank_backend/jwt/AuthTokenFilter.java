@@ -1,6 +1,7 @@
 package com.question_bank_backend.jwt;
 
 
+import com.question_bank_backend.student.StudentRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -9,6 +10,7 @@ import lombok.NoArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -27,7 +29,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     JwtUtils jwtUtils;
 
     @Autowired
-    UserDetailsService userDetailsService;
+    @Qualifier("studentUserDetailsService")
+    private UserDetailsService studentUserDetailsService;
+
+    @Autowired
+    @Qualifier("superAdminUserDetailsService")
+    private UserDetailsService superAdminUserDetailsService;
+
+    @Autowired
+    private StudentRepository studentRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
@@ -43,7 +53,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             if (jwt != null && jwtUtils.validateJwtToken(jwt)) {
                 String userEmail = jwtUtils.getUserNameFromJwtToken(jwt);
 
-                UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+                UserDetails userDetails;
+
+                if(isStudent(userEmail)){
+                    userDetails = studentUserDetailsService.loadUserByUsername(userEmail);
+                }else{
+                    userDetails= superAdminUserDetailsService.loadUserByUsername(userEmail);
+                }
+
 
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(userDetails,
@@ -69,4 +86,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         logger.debug("AuthTokenFilter.java: {}", jwt);
         return jwt;
     }
+
+    private boolean isStudent(String userEmail){
+        return studentRepository.existsByEmail(userEmail);
+    }
+
+
 }

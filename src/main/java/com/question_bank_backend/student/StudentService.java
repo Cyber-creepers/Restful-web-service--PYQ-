@@ -1,6 +1,8 @@
 package com.question_bank_backend.student;
 
-public interface StudentService
+import org.springframework.security.core.userdetails.UserDetailsService;
+
+public interface StudentService extends UserDetailsService
 {
     StudentDto register(StudentDto studentDto);
 

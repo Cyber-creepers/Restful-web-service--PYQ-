@@ -1,5 +1,4 @@
-package com.question_bank_backend.superadmin;
-
+package com.question_bank_backend.student;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,13 +9,10 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class SuperAdminLoginResponse {
-
+public class StudentLoginResponse {
     private String jwtToken;
 
     private String username;
 
     private List<String> roles;
-
-
 }

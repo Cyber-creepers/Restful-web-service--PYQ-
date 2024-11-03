@@ -6,12 +6,14 @@ import com.question_bank_backend.otpverification.OtpVerificationEntity;
 import com.question_bank_backend.utility.EmailUtil;
 import com.question_bank_backend.utility.OtpUtil;
 import jakarta.mail.MessagingException;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-@Service
+@Service("studentUserDetailsService")
 public class StudentServiceImp implements StudentService {
 
     StudentRepository studentRepository;
@@ -150,5 +152,12 @@ public class StudentServiceImp implements StudentService {
             return "Failed to set Password";
         }
 
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        StudentEntity studentEntity= studentRepository.findByEmail(email).orElseThrow(()-> new UsernameNotFoundException("User not found with this email '"+ email + "' "));
+
+        return new StudentPrincipal(studentEntity);
     }
 }

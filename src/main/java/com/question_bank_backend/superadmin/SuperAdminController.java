@@ -41,10 +41,8 @@ public class SuperAdminController {
 
     private final ObjectMapper objectMapper;
 
-    @Value("${project.profile-pic}")
-    private String profilePic;
-
     private final AuthenticationManager authenticationManager;
+
     private final FileUtil fileUtil;
 
     public SuperAdminController(SuperAdminService superAdminService, AuthenticationManager authenticationManager, JwtUtils jwtUtils, ObjectMapper objectMapper, FileUtil fileUtil) {
@@ -55,6 +53,8 @@ public class SuperAdminController {
         this.fileUtil = fileUtil;
     }
 
+    @Value("${project.profile-pic}")
+    private String profilePic;
 
     @PostMapping(path = "/register")
     public ResponseEntity<Object> register(@RequestPart MultipartFile file, @RequestPart String superAdminDto) throws IOException {
@@ -99,29 +99,17 @@ public class SuperAdminController {
     @PutMapping(path = "/login")
     public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
 
-//        Authentication authentication;
-//
-//        try {
-//            authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-//        } catch (AuthenticationException e) {
-//            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
-//        }
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-//
-//        String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
-//
-//        List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
-//
-//        SuperAdminLoginResponse superAdminLoginResponse = new SuperAdminLoginResponse(jwtToken, userDetails.getUsername(), roles);
-//
-//        return MyResponseHandler.generateResponse(HttpStatus.OK, false, userDetails.getUsername() + " : Login Success", superAdminLoginResponse);
-
         // Check if user exists by loading UserDetails
         UserDetails userDetails;
+
         try {
             userDetails = superAdminService.loadUserByUsername(email);
+
+            // Check if user has completed OTP verification
+            if (userDetails != null && ! userDetails.isEnabled()) {
+                return MyResponseHandler.generateResponse(HttpStatus.FORBIDDEN, true, "OTP verification is not complete", null);
+            }
+
         } catch (UsernameNotFoundException e) {
             // Return a relevant message if the user is not found
             return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, "User with this email not found", null);
@@ -131,12 +119,17 @@ public class SuperAdminController {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+
+
+
         } catch (BadCredentialsException e) {
             // Return a relevant message if the password is incorrect
             return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Incorrect password", null);
-        } catch (AuthenticationException e) {
+        }
+
+        catch (AuthenticationException e) {
             // Return a generic authentication error message
-            return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Authentication failed", null);
+            return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Authentication  failed", null);
         }
 
         // Set authentication context
@@ -149,7 +142,6 @@ public class SuperAdminController {
 
         return MyResponseHandler.generateResponse(HttpStatus.OK, false, userDetails.getUsername() + " : Login Success", superAdminLoginResponse);
     }
-
 
 
     @PutMapping(path = "/forget-password")

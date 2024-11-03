@@ -25,7 +25,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-@Service
+@Service("superAdminUserDetailsService")
 public class SuperAdminServiceImp implements SuperAdminService {
 
     SuperAdminRepository superAdminRepository;

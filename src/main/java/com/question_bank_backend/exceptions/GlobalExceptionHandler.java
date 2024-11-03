@@ -7,34 +7,32 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-
 import java.io.FileNotFoundException;
 import java.nio.file.FileAlreadyExistsException;
 
 @ControllerAdvice
-public class GlobalExceptionHandler
-{
+public class GlobalExceptionHandler {
 
     @ExceptionHandler
-    public ResponseEntity<Object> exceptionHandler(FileNotFoundException fileNotFoundException){
+    public ResponseEntity<Object> exceptionHandler(FileNotFoundException fileNotFoundException) {
 
-        return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND,true,fileNotFoundException.getMessage(),null);
+        return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, fileNotFoundException.getMessage(), null);
 
     }
 
     @ExceptionHandler
-    public ResponseEntity<Object> exceptionHandler(RuntimeException runtimeException){
-        return MyResponseHandler.generateResponse(HttpStatus.CONFLICT,true,runtimeException.getMessage(),null);
+    public ResponseEntity<Object> exceptionHandler(RuntimeException runtimeException) {
+        return MyResponseHandler.generateResponse(HttpStatus.CONFLICT, true, runtimeException.getMessage(), null);
     }
 
     @ExceptionHandler
-    public ResponseEntity<Object> exceptionHandler(FileAlreadyExistsException fileAlreadyExistsException){
-        return MyResponseHandler.generateResponse(HttpStatus.CONFLICT,true, fileAlreadyExistsException.getMessage(),null);
+    public ResponseEntity<Object> exceptionHandler(FileAlreadyExistsException fileAlreadyExistsException) {
+        return MyResponseHandler.generateResponse(HttpStatus.CONFLICT, true, fileAlreadyExistsException.getMessage(), null);
     }
 
     @ExceptionHandler
-    public ResponseEntity<Object> exceptionHandler(MailSendException mailSendException){
-        return MyResponseHandler.generateResponse(HttpStatus.REQUEST_TIMEOUT,true, mailSendException.getMessage(), null);
+    public ResponseEntity<Object> exceptionHandler(MailSendException mailSendException) {
+        return MyResponseHandler.generateResponse(HttpStatus.REQUEST_TIMEOUT, true, mailSendException.getMessage(), null);
     }
 
 
