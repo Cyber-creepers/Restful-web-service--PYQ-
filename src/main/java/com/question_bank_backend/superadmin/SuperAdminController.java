@@ -75,14 +75,14 @@ public class SuperAdminController {
 
 
     @PutMapping(path = "/verifyAccount")
-    public ResponseEntity<Object> verifyAccount(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<Object> verifyAccount(@RequestParam String email, @RequestHeader String otp) {
 
         String message = superAdminService.verifyAccount(email, otp);
 
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, null, null);
         }
     }
 
@@ -92,13 +92,13 @@ public class SuperAdminController {
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.BAD_GATEWAY, false, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_GATEWAY, false, null, null);
         }
     }
 
 
     @PutMapping(path = "/login")
-    public ResponseEntity<Object> login(@RequestParam String email, @RequestParam String password) {
+    public ResponseEntity<Object> login(@RequestHeader String email, @RequestHeader String password) {
 
         // Check if user exists by loading UserDetails
         UserDetails userDetails;
@@ -107,7 +107,7 @@ public class SuperAdminController {
             userDetails = superAdminService.loadUserByUsername(email);
 
             // Check if user has completed OTP verification
-            if (userDetails != null && ! userDetails.isEnabled()) {
+            if (userDetails != null && !userDetails.isEnabled()) {
                 return MyResponseHandler.generateResponse(HttpStatus.FORBIDDEN, true, "OTP verification is not complete", null);
             }
 
@@ -120,15 +120,10 @@ public class SuperAdminController {
         Authentication authentication;
         try {
             authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
-
-
         } catch (BadCredentialsException e) {
             // Return a relevant message if the password is incorrect
             return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Incorrect password", null);
-        }
-
-        catch (AuthenticationException e) {
+        } catch (AuthenticationException e) {
             // Return a generic authentication error message
             return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Authentication  failed", null);
         }
@@ -155,11 +150,10 @@ public class SuperAdminController {
         }
     }
 
+
     @PreAuthorize("hasRole('SUPER_ADMIN')")
     @PutMapping(path = "/set-password")
     public ResponseEntity<Object> setPassword(@RequestParam String email, @RequestHeader String password) {
-
-        System.out.println("set password is called ");
         String message = superAdminService.setPassword(email, password);
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
@@ -184,7 +178,7 @@ public class SuperAdminController {
         InputStream resourceFile = fileUtil.getResourceFile(profilePic, fileName);
         if (fileName.endsWith(".pdf")) {
             response.setContentType(MediaType.APPLICATION_PDF_VALUE);
-        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg")) {
+        } else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".JPG")) {
             response.setContentType(MediaType.IMAGE_JPEG_VALUE);
         } else if (fileName.endsWith(".png")) {
             response.setContentType(MediaType.IMAGE_PNG_VALUE);

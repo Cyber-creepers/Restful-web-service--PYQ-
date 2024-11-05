@@ -10,6 +10,7 @@ import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -29,6 +30,7 @@ public class StudentServiceImp implements StudentService {
     private final OtpUtil otpUtil;
     private final EmailUtil emailUtil;
     private final FileUtil fileUtil;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     @Value("${project.profile-pic}")
     private String path;
@@ -36,16 +38,18 @@ public class StudentServiceImp implements StudentService {
     @Value("${base.url}")
     private String baseUrl;
 
-    public StudentServiceImp(StudentRepository studentRepository, ObjectMapper objectMapper, OtpUtil otpUtil, EmailUtil emailUtil, FileUtil fileUtil) {
+    public StudentServiceImp(StudentRepository studentRepository, ObjectMapper objectMapper, OtpUtil otpUtil, EmailUtil emailUtil, FileUtil fileUtil, BCryptPasswordEncoder bCryptPasswordEncoder) {
         this.studentRepository = studentRepository;
         this.objectMapper = objectMapper;
         this.otpUtil = otpUtil;
         this.emailUtil = emailUtil;
         this.fileUtil = fileUtil;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @Override
     public StudentDto register(StudentDto studentDto, MultipartFile file) throws IOException {
+
 
         if (Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
             throw new FileAlreadyExistsException("File already exists! Please enter file name!");
@@ -71,7 +75,7 @@ public class StudentServiceImp implements StudentService {
 
         StudentEntity studentEntity = new StudentEntity();
         studentEntity.setEmail(studentDto.getEmail());
-        studentEntity.setPassword(studentDto.getPassword());
+        studentEntity.setPassword(bCryptPasswordEncoder.encode(studentDto.getPassword()));
         studentEntity.setName(studentDto.getName());
         studentEntity.setPhoto(uploadFileName);
         studentEntity.setPhone_No(studentDto.getPhone_No());
@@ -169,13 +173,31 @@ public class StudentServiceImp implements StudentService {
     public String setPassword(String email, String password) {
         StudentEntity studentEntity = studentRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with email " + email + "' does not exist"));
         if (studentEntity != null) {
-            studentEntity.setPassword(password);
+            studentEntity.setPassword(bCryptPasswordEncoder.encode(password));
             studentRepository.save(studentEntity);
             return "Password set successfully";
         } else {
             return "Failed to set Password";
         }
 
+    }
+
+    @Override
+    public String changePassword(String otp, String newPassword, String email) {
+        StudentEntity studentEntity = studentRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found with this email '"+email+"' "));
+        if (studentEntity != null  && Duration.between(studentEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+
+            OtpVerificationEntity otpverificationEntity = studentEntity.getOtpverification();
+            if(!otpverificationEntity.getOtp().equals(otp)){
+                throw new RuntimeException("Otp doesn't match");
+            }
+            otpverificationEntity.setStatus("Verified");
+            studentEntity.setPassword(bCryptPasswordEncoder.encode(newPassword));
+            studentRepository.save(studentEntity);
+            return "Password Change Successfully Email '"+email+"' now you can login";
+        }else {
+         throw new RuntimeException("Please regenerate Otp and try again");
+        }
     }
 
     @Override

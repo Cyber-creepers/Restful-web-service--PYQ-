@@ -6,9 +6,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.jwt.JwtUtils;
 import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.MyResponseHandler;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,11 +20,13 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.util.StreamUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -68,12 +73,12 @@ public class StudentController {
     }
 
     @PutMapping(path = "/verify-account")
-    public ResponseEntity<Object> verifyAccount(@RequestParam String email, @RequestParam String otp) {
+    public ResponseEntity<Object> verifyAccount(@RequestParam String email, @RequestHeader String otp) {
         String message = studentService.verifyAccount(email, otp);
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST, true, null, null);
         }
     }
 
@@ -83,7 +88,7 @@ public class StudentController {
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.BAD_GATEWAY, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_GATEWAY, true, null, null);
         }
     }
 
@@ -114,8 +119,7 @@ public class StudentController {
         } catch (BadCredentialsException e) {
             // Return a relevant message if the password id incorrect
             return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Incorrect password", null);
-        }
-        catch (AuthenticationException e) {
+        }catch (AuthenticationException e) {
             // Return a generic authentication error message
             return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED, true, "Authentication   failed", null);
         }
@@ -131,8 +135,7 @@ public class StudentController {
     }
 
     @PutMapping(path = "/forget-password")
-    public ResponseEntity<Object> forgetPasswprd(@RequestParam String email) {
-
+    public ResponseEntity<Object> forgetPassword(@RequestParam String email) {
         String message = studentService.forgetPassword(email);
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.OK, false, message, null);
@@ -141,14 +144,41 @@ public class StudentController {
         }
     }
 
+    @PreAuthorize("hasAnyRole('SUPER_ADMIN', 'STUDENT')")
     @PutMapping(path = "/set-password")
     public ResponseEntity<Object> setPassword(@RequestParam String email, @RequestHeader String password) {
         String message = studentService.setPassword(email, password);
         if (message != null) {
             return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED, false, message, null);
         } else {
-            return MyResponseHandler.generateResponse(HttpStatus.NOT_IMPLEMENTED, true, message, null);
+            return MyResponseHandler.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, true, null, null);
         }
+    }
+
+    @PutMapping("/change-password")
+    public ResponseEntity<Object> changePassword(@RequestHeader String otp, @RequestHeader String newPassword, @RequestHeader String email){
+        String message = studentService.changePassword(otp, newPassword, email);
+        if (message != null){
+            return MyResponseHandler.generateResponse(HttpStatus.ACCEPTED,false, message, null);
+        }else{
+            return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST,true, null,null);
+        }
+    }
+
+    @GetMapping("/download-pic")
+    public void serveFileHandler(HttpServletResponse response, @RequestParam String fileName) throws IOException {
+        InputStream resourceFile = fileUtil.getResourceFile(profilePic , fileName);
+        if (fileName.endsWith(".pdf")){
+            response.setContentType(MediaType.APPLICATION_PDF_VALUE);
+        }else if (fileName.endsWith(".jpg") || fileName.endsWith(".jpeg") || fileName.endsWith(".JPG")) {
+            response.setContentType(MediaType.IMAGE_JPEG_VALUE);
+        } else if (fileName.endsWith(".png")) {
+            response.setContentType(MediaType.IMAGE_PNG_VALUE);
+        } else {
+            response.setContentType(MediaType.APPLICATION_OCTET_STREAM_VALUE); // Default for unknown types
+        }
+        StreamUtils.copy(resourceFile, response.getOutputStream());
+
     }
 
     private StudentDto convertToStudentDto(String studentDto) throws JsonProcessingException {

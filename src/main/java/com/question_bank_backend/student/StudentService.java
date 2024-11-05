@@ -17,5 +17,5 @@ public interface StudentService extends UserDetailsService
 
     String setPassword(String email, String password);
 
-
+    String changePassword(String otp, String newPassword, String email);
 }

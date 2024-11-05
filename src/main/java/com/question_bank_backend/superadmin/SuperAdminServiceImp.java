@@ -200,8 +200,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
     @Override
     public String changePassword(String otp, String newPassword, String email) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email '" + email + "' "));
-        if (superAdminEntity != null && superAdminEntity.getOtpverification().getOtp().equals(otp)
-                && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+        if (superAdminEntity != null  && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
             OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();

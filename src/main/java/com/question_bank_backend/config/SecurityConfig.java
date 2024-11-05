@@ -7,7 +7,6 @@ import com.question_bank_backend.security.SuperAdminAuthenticationProvider;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -35,7 +34,7 @@ public class SecurityConfig {
 
 
     @Autowired
-    private  SuperAdminAuthenticationProvider superAdminAuthenticationProvider;
+    private SuperAdminAuthenticationProvider superAdminAuthenticationProvider;
 
 
     @Autowired
@@ -50,19 +49,13 @@ public class SecurityConfig {
 
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
-    public SecurityConfig( DataSource dataSource, AuthEntryPoint authEntryPoint, BCryptPasswordEncoder bCryptPasswordEncoder) {
+    public SecurityConfig(DataSource dataSource, AuthEntryPoint authEntryPoint, BCryptPasswordEncoder bCryptPasswordEncoder) {
 
         this.dataSource = dataSource;
         this.authEntryPoint = authEntryPoint;
         this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
-   /* @Bean
-    public AuthenticationManager authenticationManager(AuthenticationManagerBuilder auth) throws Exception {
-        auth.authenticationProvider(superAdminAuthenticationProvider);
-        auth.authenticationProvider(studentauthenticationProvider);
-        return auth.build();
-    }*/
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authConfig) throws Exception {
@@ -87,7 +80,9 @@ public class SecurityConfig {
                                 , "/api/v1/superAdmin/login", "/api/v1/superAdmin/register"
                                 , "/api/v1/superAdmin/verifyAccount", "/api/v1/superAdmin/regenerate-otp"
                                 , "/api/v1/superAdmin/forget-password", "/api/v1/superAdmin/change-password",
-                                "/api/v1/superAdmin/download-pic").permitAll()
+                                "/api/v1/superAdmin/download-pic" , "/api/v1/student/download-pic" , "/api/v1/student/change-password",
+                                "/api/v1/student/forget-password" , "/api/v1/student/login" , "/api/v1/student/regenerate-otp" ,
+                                "/api/v1/student/register" , "/api/v1/student/verify-account").permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -95,11 +90,6 @@ public class SecurityConfig {
                 .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
-
-
-
-
-
 
 
     @Bean

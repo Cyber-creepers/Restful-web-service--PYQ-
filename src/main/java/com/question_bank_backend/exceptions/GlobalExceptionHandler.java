@@ -2,6 +2,7 @@ package com.question_bank_backend.exceptions;
 
 
 import com.question_bank_backend.utility.MyResponseHandler;
+import jakarta.servlet.ServletException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.mail.MailSendException;
@@ -33,6 +34,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<Object> exceptionHandler(MailSendException mailSendException) {
         return MyResponseHandler.generateResponse(HttpStatus.REQUEST_TIMEOUT, true, mailSendException.getMessage(), null);
+    }
+
+
+    @ExceptionHandler(ServletException.class)
+    public ResponseEntity<Object> exceptionHandler(ServletException e){
+        return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED,true,e.getCause().toString(),null);
     }
 
 
