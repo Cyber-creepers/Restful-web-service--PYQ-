@@ -10,14 +10,12 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdminDto
-{
+public class AdminDto {
 
     private String name;
 
     private Long phone_NO;
 
-    private String photo;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
@@ -26,6 +24,9 @@ public class AdminDto
 
     private String verifiedBy;
 
+    private String photo;
+
+    private String photoUrl;
 
 
 }

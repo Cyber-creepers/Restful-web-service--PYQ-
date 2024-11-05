@@ -7,10 +7,7 @@ import com.question_bank_backend.utility.EmailUtil;
 import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.OtpUtil;
 import jakarta.mail.MessagingException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -46,10 +43,6 @@ public class SuperAdminServiceImp implements SuperAdminService {
 
     private final FileUtil fileUtil;
 
-
-    @Lazy
-    @Autowired
-    AuthenticationManager authenticationManager;
 
     public SuperAdminServiceImp(SuperAdminRepository superAdminRepository, BCryptPasswordEncoder bCryptPasswordEncoder, ObjectMapper objectMapper, OtpUtil otpUtil, EmailUtil emailUtil, FileUtil fileUtil) {
         this.superAdminRepository = superAdminRepository;
@@ -117,7 +110,8 @@ public class SuperAdminServiceImp implements SuperAdminService {
     @Override
     public String verifyAccount(String email, String otp) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email " + email));
-        if (superAdminEntity != null && superAdminEntity.getOtpverification().getOtp().equals(otp)
+        if (superAdminEntity != null
+                && superAdminEntity.getOtpverification().getOtp().equals(otp)
                 && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
@@ -125,11 +119,9 @@ public class SuperAdminServiceImp implements SuperAdminService {
             superAdminRepository.save(superAdminEntity);
             return "Otp verified you can login";
 
-
         } else {
             return "Please regenerate Otp and try again";
         }
-
     }
 
     @Override
@@ -200,7 +192,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
     @Override
     public String changePassword(String otp, String newPassword, String email) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email '" + email + "' "));
-        if (superAdminEntity != null  && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+        if (superAdminEntity != null && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
             OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();

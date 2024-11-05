@@ -4,55 +4,87 @@ package com.question_bank_backend.admin;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.otpverification.OtpVerificationEntity;
 import com.question_bank_backend.utility.EmailUtil;
+import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.OtpUtil;
 import jakarta.mail.MessagingException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
 @Service
-public class AdminServiceImp  implements AdminService
-{
+public class AdminServiceImp implements AdminService {
 
-     AdminRepository adminRepository;
-     ObjectMapper objectMapper;
-     OtpUtil otpUtil;
-     EmailUtil emailUtil;
+    private final AdminRepository adminRepository;
+
+    private final ObjectMapper objectMapper;
+
+    private final OtpUtil otpUtil;
+
+    private final EmailUtil emailUtil;
+
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    private final FileUtil fileUtil;
+
+    @Value("${project.profile-pic}")
+    private String path;
+
+    @Value("${base.url}")
+    private String baseUrl;
 
 
-    AdminServiceImp(AdminRepository adminRepository, ObjectMapper objectMapper, OtpUtil otpUtil, EmailUtil emailUtil){
+    public AdminServiceImp(AdminRepository adminRepository, ObjectMapper objectMapper, OtpUtil otpUtil, EmailUtil emailUtil, BCryptPasswordEncoder bCryptPasswordEncoder, FileUtil fileUtil) {
+        this.adminRepository = adminRepository;
+        this.objectMapper = objectMapper;
         this.otpUtil = otpUtil;
         this.emailUtil = emailUtil;
-        this.adminRepository=adminRepository;
-        this.objectMapper=objectMapper;
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
+        this.fileUtil = fileUtil;
     }
 
     @Override
-    public AdminDto register(AdminDto adminDto)
-    {
-       if (adminRepository.findByEmail(adminDto.getEmail()).isPresent()){
-           throw new RuntimeException("User with email "+adminDto.getEmail()+"' already exists");
-       }
+    public AdminDto register(AdminDto adminDto, MultipartFile file) throws IOException {
+        if (Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
+            throw new FileAlreadyExistsException("File already exists! Please enter another file name!");
+        }
 
-       StringBuilder otp= otpUtil.generateOtp();
-       String otpOutput=otp.toString();
+        // Check if a Admin with the same email already exists
+        if (adminRepository.existsByEmail(adminDto.getEmail())) {
+            throw new RuntimeException("User with email " + adminDto.getEmail() + "' already exists");
+        }
 
-       try {
-           emailUtil.sendOtpEmail(adminDto.getEmail(), otpOutput);
-       }catch (MessagingException e){
-           throw new RuntimeException("Unable to send OTP to email "+adminDto.getEmail()+"' please try again");
-       }
+        StringBuilder otp = otpUtil.generateOtp();
 
-       AdminEntity adminEntity=new AdminEntity();
-       adminEntity.setEmail(adminDto.getEmail());
-       adminEntity.setPassword(adminDto.getPassword());
-       adminEntity.setName(adminDto.getName());
-       adminEntity.setVerifiedBy(adminDto.getVerifiedBy());
-       adminEntity.setPhoto(adminDto.getPhoto());
-       adminEntity.setPhone_No(adminDto.getPhone_NO());
+        String otpOutput = otp.toString();
 
-        OtpVerificationEntity otpVerificationEntity =new OtpVerificationEntity();
+        try {
+            emailUtil.sendOtpEmail(adminDto.getEmail(), otpOutput);
+        } catch (MessagingException e) {
+            throw new RuntimeException("Unable to send OTP to email " + adminDto.getEmail() + "' please try again");
+        }
+
+        String uploadFileName = fileUtil.uploadFile(path, file);
+
+        String posterUrl = baseUrl + "/api/v1/admin/download-pic?fileName=" + uploadFileName;
+
+
+        AdminEntity adminEntity = new AdminEntity();
+        adminEntity.setEmail(adminDto.getEmail());
+        adminEntity.setPassword(bCryptPasswordEncoder.encode(adminDto.getPassword()));
+        adminEntity.setName(adminDto.getName());
+        adminEntity.setVerifiedBy(adminDto.getVerifiedBy());
+        adminEntity.setPhoto(uploadFileName);
+        adminEntity.setPhone_No(adminDto.getPhone_NO());
+
+        OtpVerificationEntity otpVerificationEntity = new OtpVerificationEntity();
         otpVerificationEntity.setOtp(otpOutput);
         otpVerificationEntity.setStatus("NotVerified");
         otpVerificationEntity.setSendTime(LocalDateTime.now());
@@ -64,90 +96,90 @@ public class AdminServiceImp  implements AdminService
         // Save the studentEntity which should cascade and save the OtpVerificationEntity
         adminRepository.save(adminEntity);
 
+        adminDto.setPhoto(uploadFileName);
+        adminDto.setPhotoUrl(posterUrl);
+
         return adminDto;
     }
 
+
     @Override
-    public AdminDto login(String email, String password)
-    {
-      AdminEntity adminEntity=  adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with email "+email+"' do not exist"));
+    public String verifyAccount(String email, String otp) {
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User withe email '" + email + "' do not exist"));
+        if (adminEntity != null
+                && adminEntity.getOtpverification().getOtp().equals(otp)
+                && Duration.between(adminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() <= 60) {
 
-      if(!adminEntity.getPassword().equals(password))
-      {
-          throw new RuntimeException("Incorrect password");
-      }else if(!adminEntity.getOtpverification().getStatus().equals("Verified")) {
-          throw new RuntimeException("The user with the email address '"+email+"' has not completed otp verification");
-      }
-
-      return objectMapper.convertValue(adminEntity, AdminDto.class);
+            adminEntity.getOtpverification().setStatus("Verified");
+            adminRepository.save(adminEntity);
+            return "Otp verified you can login";
+        } else {
+            return "Please regenerate Otp and try again";
+        }
     }
 
     @Override
-    public String verifyAccount(String email, String otp)
-    {
-       AdminEntity adminEntity= adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User withe email '"+email+"' do not exist"));
-       if (adminEntity != null
-               && adminEntity.getOtpverification().getOtp().equals(otp)
-               && Duration.between(adminEntity.getOtpverification().getSendTime(),LocalDateTime.now()).getSeconds() <=60) {
+    public String regenerateOtp(String email) {
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with this email '" + email + "' do not exist"));
+        if (adminEntity != null) {
 
-           adminEntity.getOtpverification().setStatus("Verified");
-           adminRepository.save(adminEntity);
-           return "Otp verified you can login";
-       }else {
-           return "Please regenerate Otp and try again";
-       }
-    }
-
-    @Override
-    public String regenerateOtp(String email)
-    {
-        AdminEntity adminEntity=adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with this email '"+email+"' do not exist"));
-        if (adminEntity != null){
-            StringBuilder otp=otpUtil.generateOtp();
-            String otpOutput=otp.toString();
+            StringBuilder otp = otpUtil.generateOtp();
+            String otpOutput = otp.toString();
 
             try {
                 emailUtil.sendOtpEmail(email, otpOutput);
-            }catch(MessagingException e){
+            } catch (MessagingException e) {
                 throw new RuntimeException("Unable to send Otp to email please try again");
             }
 
-            OtpVerificationEntity otpVerificationEntity=adminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             adminRepository.save(adminEntity);
             return "Email send successfully please verify your Account within one minute";
-        }else{
+        } else {
             return "Failed to send Email";
         }
     }
 
     @Override
-    public String forgetPassword(String email)
-    {
-      AdminEntity adminEntity=  adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with this email '"+email+"' do not exist"));
+    public String forgetPassword(String email) {
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with this email '" + email + "' do not exist"));
 
-         /* try {
-              emailUtil.setPasswordEmail(email);
-          }catch (MessagingException e){
-              throw new RuntimeException("Unable to send email please try again");
-          }*/
+        if (adminEntity != null) {
 
-       return "Please check your email to set new Password";
+            StringBuilder otp = otpUtil.generateOtp();
+            String otpOutput = otp.toString();
+
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
+            otpVerificationEntity.setOtp(otpOutput);
+            otpVerificationEntity.setSendTime(LocalDateTime.now());
+            adminRepository.save(adminEntity);
+
+            try {
+                emailUtil.setPasswordEmail(email, otpOutput);
+            } catch (MessagingException e) {
+                throw new RuntimeException("Unable to send email please try again");
+            }
+
+            return "Email send Successfully visit your mail for Further assistant";
+        }
+
+        return "Failed to send Email For Forgot Password";
     }
 
     @Override
-    public String setPassword(String email, String password)
-    {
-       AdminEntity adminEntity= adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User with this email '"+email+"' do not exist"));
+    public String setPassword(String email, String password) {
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with this email '" + email + "' do not exist"));
 
-       if(adminEntity != null){
-           adminEntity.setPassword(password);
-           adminRepository.save(adminEntity);
-           return "Password set successfully";
-       }else {
-           return "Failed to set Password";
-       }
-
+        if (adminEntity != null) {
+            adminEntity.setPassword(password);
+            adminRepository.save(adminEntity);
+            return "Password set successfully";
+        } else {
+            return "Failed to set Password";
+        }
     }
+
+
 }

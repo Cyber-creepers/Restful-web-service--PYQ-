@@ -1,9 +1,12 @@
 package com.question_bank_backend.admin;
 
-public interface AdminService {
-    AdminDto register(AdminDto adminDto);
+import org.springframework.web.multipart.MultipartFile;
 
-    AdminDto login(String email, String password);
+import java.io.IOException;
+
+public interface AdminService {
+
+    AdminDto register(AdminDto adminDto, MultipartFile file) throws IOException;
 
     String verifyAccount(String email, String otp);
 

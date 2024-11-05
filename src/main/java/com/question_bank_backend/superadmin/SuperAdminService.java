@@ -5,12 +5,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
-import java.nio.file.FileAlreadyExistsException;
 
 public interface SuperAdminService extends UserDetailsService {
 
 
-    SuperAdminDto register(SuperAdminDto superAdminDto , MultipartFile file) throws IOException;
+    SuperAdminDto register(SuperAdminDto superAdminDto, MultipartFile file) throws IOException;
 
     String verifyAccount(String email, String otp);
 
@@ -20,6 +19,6 @@ public interface SuperAdminService extends UserDetailsService {
 
     String setPassword(String email, String newPassword);
 
-    String changePassword(String otp, String newPassword,String email);
+    String changePassword(String otp, String newPassword, String email);
 
 }
