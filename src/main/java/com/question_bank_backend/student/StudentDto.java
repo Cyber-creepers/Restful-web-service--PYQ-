@@ -16,12 +16,16 @@ public class StudentDto
 
    private Long phone_No;
 
-   private String photo;
-
    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
    private String password;
 
    private String email;
+
+   private String photo;
+
+   private String photoUrl;
+
+
 
 
 }

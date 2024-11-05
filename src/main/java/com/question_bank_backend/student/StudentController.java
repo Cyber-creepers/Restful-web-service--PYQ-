@@ -1,10 +1,12 @@
 package com.question_bank_backend.student;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.jwt.JwtUtils;
 import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.MyResponseHandler;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -16,7 +18,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,6 +39,9 @@ public class StudentController {
 
     private final FileUtil fileUtil;
 
+    @Value("${project.profile-pic}")
+    private String profilePic;
+
     public StudentController(AuthenticationManager authenticationManager, JwtUtils jwtUtils, StudentService studentService, ObjectMapper objectMapper, FileUtil fileUtil) {
         this.authenticationManager = authenticationManager;
         this.jwtUtils = jwtUtils;
@@ -44,8 +52,13 @@ public class StudentController {
 
 
     @PostMapping(path = "/register")
-    public ResponseEntity<Object> register(@RequestBody StudentDto studentDto) {
-        StudentDto registerStudent = studentService.register(studentDto);
+    public ResponseEntity<Object> register(@RequestPart MultipartFile file,@RequestPart String studentDto) throws IOException {
+
+        if (file.isEmpty()) {
+            throw new FileNotFoundException("File is empty! Please send another file!");
+        }
+
+        StudentDto registerStudent = studentService.register(convertToStudentDto(studentDto),file);
 
         if (registerStudent != null) {
             return MyResponseHandler.generateResponse(HttpStatus.CREATED, false, "Student register successfully", registerStudent);
@@ -136,6 +149,10 @@ public class StudentController {
         } else {
             return MyResponseHandler.generateResponse(HttpStatus.NOT_IMPLEMENTED, true, message, null);
         }
+    }
+
+    private StudentDto convertToStudentDto(String studentDto) throws JsonProcessingException {
+        return objectMapper.readValue(studentDto,StudentDto.class);
     }
 
 

@@ -14,4 +14,6 @@ public interface SuperAdminRepository extends JpaRepository<SuperAdminEntity, St
 
     Optional<SuperAdminEntity> findByName(String name);
 
+    boolean existsByEmail(String email);
+
 }

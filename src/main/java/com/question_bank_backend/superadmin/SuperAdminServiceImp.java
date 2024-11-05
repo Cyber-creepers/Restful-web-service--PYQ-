@@ -68,7 +68,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
         }
 
         // Check if a SuperAdmin with the same email already exists
-        if (superAdminRepository.findByEmail(superAdminDto.getEmail()).isPresent()) {
+        if (superAdminRepository.existsByEmail(superAdminDto.getEmail())) {
             throw new RuntimeException("User with email " + superAdminDto.getEmail() + " already exists");
         }
 
@@ -178,11 +178,10 @@ public class SuperAdminServiceImp implements SuperAdminService {
                 throw new RuntimeException("Unable to send email please try again");
             }
 
-            return "Email send Successfully visit your mail for Further assistent ";
+            return "Email send Successfully visit your mail for Further assistant ";
 
-        } else {
-            return "Failed to send Email For Forgot password ";
         }
+        return "Failed to send Email For Forgot password ";
 
     }
 
