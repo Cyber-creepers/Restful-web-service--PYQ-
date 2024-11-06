@@ -14,7 +14,7 @@ public class AdminDto {
 
     private String name;
 
-    private Long phone_NO;
+    private Long phone_No;
 
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

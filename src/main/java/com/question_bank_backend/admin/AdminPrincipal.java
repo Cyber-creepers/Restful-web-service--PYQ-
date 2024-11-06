@@ -1,7 +1,6 @@
-package com.question_bank_backend.superadmin;
+package com.question_bank_backend.admin;
 
 import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -9,26 +8,25 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 
-@NoArgsConstructor
 @AllArgsConstructor
-public class SuperAdminPrincipal implements UserDetails {
+public class AdminPrincipal implements UserDetails {
 
-    private  SuperAdminEntity superAdminEntity;
+    private final AdminEntity adminEntity;
 
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return Collections.singleton(new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"));
+        return Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN"));
     }
 
     @Override
     public String getPassword() {
-        return superAdminEntity.getPassword();
+        return adminEntity.getPassword();
     }
 
     @Override
     public String getUsername() {
-        return superAdminEntity.getEmail();
+        return adminEntity.getEmail();
     }
 
     @Override
@@ -38,8 +36,7 @@ public class SuperAdminPrincipal implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return
-                UserDetails.super.isAccountNonLocked();
+        return UserDetails.super.isAccountNonLocked();
     }
 
     @Override
@@ -49,6 +46,6 @@ public class SuperAdminPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return superAdminEntity.getOtpverification().getStatus().equals("Verified");
+        return adminEntity.getOtpverification().getStatus().equals("Verified");
     }
 }

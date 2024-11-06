@@ -2,6 +2,7 @@ package com.question_bank_backend.config;
 
 import com.question_bank_backend.jwt.AuthEntryPoint;
 import com.question_bank_backend.jwt.AuthTokenFilter;
+import com.question_bank_backend.security.AdminAuthenticationProvider;
 import com.question_bank_backend.security.StudentAuthenticationProvider;
 import com.question_bank_backend.security.SuperAdminAuthenticationProvider;
 import lombok.Getter;
@@ -41,6 +42,12 @@ public class SecurityConfig {
     private StudentAuthenticationProvider studentauthenticationProvider;
 
 
+    @Autowired
+    private AdminAuthenticationProvider adminAuthenticationProvider;
+
+
+
+
     private final DataSource dataSource;
 
 
@@ -68,6 +75,7 @@ public class SecurityConfig {
         // Register custom authentication providers
         auth.authenticationProvider(superAdminAuthenticationProvider);
         auth.authenticationProvider(studentauthenticationProvider);
+        auth.authenticationProvider(adminAuthenticationProvider);
     }
 
     @Bean
@@ -82,7 +90,9 @@ public class SecurityConfig {
                                 , "/api/v1/superAdmin/forget-password", "/api/v1/superAdmin/change-password",
                                 "/api/v1/superAdmin/download-pic" , "/api/v1/student/download-pic" , "/api/v1/student/change-password",
                                 "/api/v1/student/forget-password" , "/api/v1/student/login" , "/api/v1/student/regenerate-otp" ,
-                                "/api/v1/student/register" , "/api/v1/student/verify-account").permitAll()
+                                "/api/v1/student/register" , "/api/v1/student/verify-account" , "/api/v1/admin/verify-account" ,
+                                 "api/v1/admin/regenerate-otp" , "/api/v1/admin/login" , "/api/v1/admin/forget-password" , "/api/v1/admin/change-password"
+                       ,"/api/v1/admin/register"  ).permitAll()
                         .anyRequest().authenticated())
                 .httpBasic(Customizer.withDefaults())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

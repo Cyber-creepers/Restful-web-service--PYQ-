@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class ClubServiceImp implements ClubService
 {
 
-    private ClubRepository clubRepository;
-    private ObjectMapper objectMapper;
+    private final ClubRepository clubRepository;
+    private final ObjectMapper objectMapper;
 
     ClubServiceImp(ClubRepository clubRepository, ObjectMapper objectMapper){
         this.clubRepository= clubRepository;

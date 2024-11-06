@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class QuestionController
 {
 
-    private QuestionService questionService;
+    private final QuestionService questionService;
 
     QuestionController(QuestionService questionService){
         this.questionService=questionService;

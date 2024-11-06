@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class PersonServiceImp implements PersonService
 {
 
-    private PersonRepository personRepository;
-    private ObjectMapper objectMapper;
+    private final PersonRepository personRepository;
+    private final ObjectMapper objectMapper;
 
     PersonServiceImp(PersonRepository personRepository,ObjectMapper objectMapper){
         this.personRepository=personRepository;

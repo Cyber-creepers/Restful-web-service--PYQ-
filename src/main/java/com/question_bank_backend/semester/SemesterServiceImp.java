@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class SemesterServiceImp  implements SemesterService
 {
 
-    private SemesterRepository semesterRepository;
-    private ObjectMapper objectMapper;
+    private final SemesterRepository semesterRepository;
+    private final ObjectMapper objectMapper;
 
     SemesterServiceImp(SemesterRepository semesterRepository,ObjectMapper objectMapper)
     {

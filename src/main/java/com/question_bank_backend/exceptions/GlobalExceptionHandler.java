@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ServletException.class)
     public ResponseEntity<Object> exceptionHandler(ServletException e){
-        return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED,true,e.getCause().toString(),null);
+        return MyResponseHandler.generateResponse(HttpStatus.UNAUTHORIZED,true,e.getMessage(),null);
     }
 
 

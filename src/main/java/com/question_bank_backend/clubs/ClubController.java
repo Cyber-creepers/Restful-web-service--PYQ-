@@ -10,7 +10,7 @@ public class ClubController
 {
 
 
-    private ClubService clubService;
+    private final ClubService clubService;
 
     ClubController(ClubService clubService){
         this.clubService=clubService;

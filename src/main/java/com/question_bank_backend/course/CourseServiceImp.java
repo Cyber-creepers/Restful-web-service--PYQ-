@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class CourseServiceImp implements CourseService
 {
 
-    private CourseRepository courseRepository;
-    private ObjectMapper objectMapper;
+    private final CourseRepository courseRepository;
+    private final ObjectMapper objectMapper;
 
     CourseServiceImp(CourseRepository courseRepository, ObjectMapper objectMapper){
         this.courseRepository =courseRepository;

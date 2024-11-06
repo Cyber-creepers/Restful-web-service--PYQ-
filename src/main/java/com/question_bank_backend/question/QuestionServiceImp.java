@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class QuestionServiceImp implements QuestionService
 {
 
-    private QuestionRepository questionRepository;
-    private ObjectMapper objectMapper;
+    private final QuestionRepository questionRepository;
+    private final ObjectMapper objectMapper;
 
     QuestionServiceImp(QuestionRepository questionRepository,ObjectMapper objectMapper){
         this.questionRepository=questionRepository;

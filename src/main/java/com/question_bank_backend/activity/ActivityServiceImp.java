@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class ActivityServiceImp implements ActivityService
 {
 
-    private ActivityRepository activityRepository;
-    private ObjectMapper objectMapper;
+    private final ActivityRepository activityRepository;
+    private final ObjectMapper objectMapper;
 
     ActivityServiceImp(ActivityRepository activityRepository,ObjectMapper objectMapper){
         this.activityRepository = activityRepository;

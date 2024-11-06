@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(path = "")
 public class CourseController {
 
-    private CourseService courseService;
+    private final CourseService courseService;
 
     CourseController(CourseService courseService){
         this.courseService= courseService;

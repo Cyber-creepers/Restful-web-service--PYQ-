@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class OtpVerificationController
 {
 
-    private OtpVerificationService otpVerificationService;
+    private final OtpVerificationService otpVerificationService;
 
     OtpVerificationController(OtpVerificationService otpVerificationService)
     {

@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class PersonController
 {
 
-    private PersonService personService;
+    private final PersonService personService;
 
     PersonController(PersonService personService)
     {

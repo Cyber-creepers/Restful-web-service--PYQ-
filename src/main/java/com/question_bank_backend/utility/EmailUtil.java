@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class EmailUtil {
 
-    private JavaMailSender mailSender;
+    private final JavaMailSender mailSender;
 
 
     EmailUtil(JavaMailSender mailSender) {

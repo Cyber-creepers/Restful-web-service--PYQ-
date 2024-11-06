@@ -8,9 +8,12 @@ import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.OtpUtil;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
@@ -19,7 +22,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
-@Service
+@Service("adminUserDetailsService")
 public class AdminServiceImp implements AdminService {
 
     private final AdminRepository adminRepository;
@@ -82,7 +85,7 @@ public class AdminServiceImp implements AdminService {
         adminEntity.setName(adminDto.getName());
         adminEntity.setVerifiedBy(adminDto.getVerifiedBy());
         adminEntity.setPhoto(uploadFileName);
-        adminEntity.setPhone_No(adminDto.getPhone_NO());
+        adminEntity.setPhone_No(adminDto.getPhone_No());
 
         OtpVerificationEntity otpVerificationEntity = new OtpVerificationEntity();
         otpVerificationEntity.setOtp(otpOutput);
@@ -181,5 +184,35 @@ public class AdminServiceImp implements AdminService {
         }
     }
 
+    @Override
+    public String changePassword(String otp, String newPassword, String email) {
 
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found with this email '"+email+"' "));
+
+        if (adminEntity != null
+         && Duration.between(adminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+
+
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
+            if (!otpVerificationEntity.getOtp().equals(otp)){
+                throw new RuntimeException("Otp doesn't match");
+            }
+            otpVerificationEntity.setStatus("Verified");
+            adminEntity.setPassword(bCryptPasswordEncoder.encode(newPassword));
+            adminRepository.save(adminEntity);
+            return "Password Change Successfully Email : "+ email +"' now you can login";
+
+        }else{
+            throw new RuntimeException("Please regenerate Otp and try again");
+        }
+
+    }
+
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with this email '" + email + "' do not exist"));
+
+        return new AdminPrincipal(adminEntity);
+    }
 }

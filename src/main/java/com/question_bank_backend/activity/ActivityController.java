@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class ActivityController
 {
 
-    private ActivityService activityService;
+    private final ActivityService activityService;
 
     ActivityController(ActivityService activityService){
         this.activityService = activityService;

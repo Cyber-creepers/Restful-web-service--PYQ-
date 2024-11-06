@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class SubjectServiceImp implements SubjectService
 {
 
-    private SubjectRepository subjectRepository;
-    private ObjectMapper objectMapper ;
+    private final SubjectRepository subjectRepository;
+    private final ObjectMapper objectMapper ;
 
     SubjectServiceImp(SubjectRepository subjectRepository,ObjectMapper objectMapper)
     {

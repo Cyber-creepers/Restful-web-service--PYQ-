@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 public class OtpVerificationServiceImp implements OtpVerificationService
 {
 
-    private OtpVerificationRepository otpVerificationRepository;
-    private ObjectMapper objectMapper;
+    private final OtpVerificationRepository otpVerificationRepository;
+    private final ObjectMapper objectMapper;
 
     OtpVerificationServiceImp(OtpVerificationRepository otpVerificationRepository, ObjectMapper objectMapper){
         this.otpVerificationRepository = otpVerificationRepository;
