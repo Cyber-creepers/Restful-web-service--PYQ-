@@ -2,6 +2,7 @@ package com.question_bank_backend.jwt;
 
 
 import com.question_bank_backend.student.StudentRepository;
+import com.question_bank_backend.superadmin.SuperAdminRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -37,10 +38,17 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private UserDetailsService superAdminUserDetailsService;
 
     @Autowired
+    @Qualifier("adminUserDetailsService")
+    private UserDetailsService adminUserDetailsService;
+
+    @Autowired
     private StudentRepository studentRepository;
 
 
     private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
+
+    @Autowired
+    private SuperAdminRepository superAdminRepository;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -57,8 +65,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                 if(isStudent(userEmail)){
                     userDetails = studentUserDetailsService.loadUserByUsername(userEmail);
-                }else{
+                }else if(isSuperAdmin(userEmail)){
                     userDetails= superAdminUserDetailsService.loadUserByUsername(userEmail);
+                }else {
+                    userDetails = adminUserDetailsService.loadUserByUsername(userEmail);
                 }
 
 
@@ -89,6 +99,10 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private boolean isStudent(String userEmail){
         return studentRepository.existsByEmail(userEmail);
+    }
+
+    private boolean isSuperAdmin(String userEmail){
+        return superAdminRepository.existsByEmail(userEmail);
     }
 
 

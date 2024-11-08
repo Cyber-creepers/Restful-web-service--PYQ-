@@ -34,27 +34,15 @@ import javax.sql.DataSource;
 public class SecurityConfig {
 
 
+    private final DataSource dataSource;
+    private final AuthEntryPoint authEntryPoint;
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
     @Autowired
     private SuperAdminAuthenticationProvider superAdminAuthenticationProvider;
-
-
     @Autowired
     private StudentAuthenticationProvider studentauthenticationProvider;
-
-
     @Autowired
     private AdminAuthenticationProvider adminAuthenticationProvider;
-
-
-
-
-    private final DataSource dataSource;
-
-
-    private final AuthEntryPoint authEntryPoint;
-
-
-    private final BCryptPasswordEncoder bCryptPasswordEncoder;
 
     public SecurityConfig(DataSource dataSource, AuthEntryPoint authEntryPoint, BCryptPasswordEncoder bCryptPasswordEncoder) {
 

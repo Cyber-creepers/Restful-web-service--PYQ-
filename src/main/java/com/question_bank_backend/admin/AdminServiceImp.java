@@ -176,7 +176,7 @@ public class AdminServiceImp implements AdminService {
         AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with this email '" + email + "' do not exist"));
 
         if (adminEntity != null) {
-            adminEntity.setPassword(password);
+            adminEntity.setPassword(bCryptPasswordEncoder.encode(password));
             adminRepository.save(adminEntity);
             return "Password set successfully";
         } else {
