@@ -3,6 +3,7 @@ package com.question_bank_backend.admin;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.question_bank_backend.course.CourseDto;
 import com.question_bank_backend.jwt.JwtUtils;
 import com.question_bank_backend.utility.FileUtil;
 import com.question_bank_backend.utility.MyResponseHandler;
@@ -166,6 +167,13 @@ public class AdminController {
             return MyResponseHandler.generateResponse(HttpStatus.BAD_REQUEST,true, null,null);
         }
     }
+    
+  /*  @PostMapping("/upload-question")
+    public ResponseEntity<Object> uploadQuestion(@RequestPart List<MultipartFile> questions, @RequestPart List<CourseDto> courseDtos){
+
+    }*/
+
+
 
 
 

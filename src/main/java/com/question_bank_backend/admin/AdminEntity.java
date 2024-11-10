@@ -32,4 +32,5 @@ public class AdminEntity extends PersonEntity {
     private List<CourseEntity> course;
 
 
+
 }
