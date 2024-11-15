@@ -3,34 +3,27 @@ package com.question_bank_backend.course;
 
 import com.question_bank_backend.semester.SemesterEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.util.List;
 
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
+@Setter
+@Getter
 @Entity
 @Table(name = "Course")
-public class CourseEntity
-{
+public class CourseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    private String courseFullName;
 
-    @Column(name = "Course_Name")
-    private String name;
+    private String courseShortName;
 
 
-    @OneToMany(cascade = CascadeType.ALL,orphanRemoval = true,mappedBy = "course")
+    @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SemesterEntity> semester;
-
-
-
 
 
 }

@@ -21,7 +21,6 @@ public class SuperAdminDto {
     private long phone_No;
 
     private String photo;
-
     private String photoUrl;
 
 
