@@ -7,6 +7,7 @@ import com.question_bank_backend.exceptions.QuestionNotFoundException;
 import com.question_bank_backend.semester.SemesterRepository;
 import com.question_bank_backend.subject.SubjectEntity;
 import com.question_bank_backend.subject.SubjectRepository;
+import com.question_bank_backend.subject.SubjectService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,54 +25,34 @@ public class QuestionServiceImp implements QuestionService {
     private final QuestionRepository questionRepository;
     private final ObjectMapper objectMapper;
     private final SubjectRepository subjectRepository;
+    private final SubjectService subjectService;
     private final SemesterRepository semesterRepository;
     private final CourseRepository courserRepository;
 
     @Value("${project.questions}")
     private String path;
 
-    public QuestionServiceImp(QuestionRepository questionRepository, ObjectMapper objectMapper, SubjectRepository subjectRepository, SemesterRepository semesterRepository, CourseRepository courserRepository) {
+    public QuestionServiceImp(SubjectService subjectService , QuestionRepository questionRepository, ObjectMapper objectMapper, SubjectRepository subjectRepository, SemesterRepository semesterRepository, CourseRepository courserRepository) {
         this.questionRepository = questionRepository;
         this.objectMapper = objectMapper;
+        this.subjectService = subjectService;
         this.subjectRepository = subjectRepository;
         this.semesterRepository = semesterRepository;
         this.courserRepository = courserRepository;
     }
 
     @Override
-    public QuestionEntity addQuestion(MultipartFile files,AddQuestionRequest question) throws FileAlreadyExistsException {
+    public QuestionEntity addQuestion(MultipartFile file, AddQuestionRequest question) throws FileAlreadyExistsException {
 
-        // check if the subject is found in the db
-        // if yes , set it as the new question subject
-        // if no , then save it as a new subject
-        // then set as the new question subject.
 
-        if (Files.exists(Paths.get(path + File.separator + files.getOriginalFilename()))){
-            throw new FileAlreadyExistsException("File already exists! Please enter file name! ");
+        if (Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
+            throw new FileAlreadyExistsException("File already exists! Please enter another file! ");
         }
 
+        SubjectEntity subject = subjectService
 
 
-        SubjectEntity subject= Optional.ofNullable(subjectRepository.findBySubjectCode(question.getSubject().getSubjectCode()))
-                .orElseGet(()-> {
-                    SubjectEntity newSubject = new SubjectEntity(question.getSubject().getSubjectName(), question.getSubject().getSubjectCode());
-                    return subjectRepository.save(newSubject);
-                });
-
-        question.setSubject(subject);
-
-
-        return null;
     }
-
-    private QuestionEntity createQuestion(AddQuestionRequest questionRequest, SubjectEntity subject){
-        return new QuestionEntity(
-                questionRequest.getSubject(),
-                questionRequest.getQuestion(),
-                questionRequest.getYear() )
-    }
-
-
 
 
 
@@ -79,8 +60,6 @@ public class QuestionServiceImp implements QuestionService {
     public QuestionEntity updateQuestion(QuestionEntity question, String id) {
         return null;
     }
-
-
 
 
     @Override

@@ -25,14 +25,14 @@ public class PersonEntity {
 
     private Long phone_No;
 
-    private String photo;
+    private String fileName;
 
     private String password;
 
     private String email;
 
     @OneToOne(mappedBy = "personEntity",cascade = CascadeType.ALL)
-    private OtpVerificationEntity otpverification;
+    private OtpVerificationEntity otpVerification;
 
 
 }

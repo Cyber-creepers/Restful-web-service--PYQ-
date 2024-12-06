@@ -3,7 +3,8 @@ package com.question_bank_backend.semester;
 import com.question_bank_backend.course.CourseEntity;
 import com.question_bank_backend.subject.SubjectEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -18,14 +19,12 @@ public class SemesterEntity {
     private String id;
 
 
-    private int  sem;
-
+    private int sem;
 
 
     @ManyToOne
     @JoinColumn(name = "course_id")
     private CourseEntity course;
-
 
 
     @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

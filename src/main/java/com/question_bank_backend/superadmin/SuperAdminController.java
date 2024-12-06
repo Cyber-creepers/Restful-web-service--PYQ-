@@ -132,6 +132,7 @@ public class SuperAdminController {
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Generate JWT token and prepare response
+        assert userDetails != null;
         String jwtToken = jwtUtils.generateTokenFromUsername(userDetails);
         List<String> roles = userDetails.getAuthorities().stream().map(item -> item.getAuthority()).collect(Collectors.toList());
         SuperAdminLoginResponse superAdminLoginResponse = new SuperAdminLoginResponse(jwtToken, userDetails.getUsername(), roles);

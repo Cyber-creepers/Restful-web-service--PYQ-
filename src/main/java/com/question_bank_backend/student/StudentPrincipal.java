@@ -50,6 +50,6 @@ public class StudentPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return studentEntity.getOtpverification().getStatus().equals("Verified");
+        return studentEntity.getOtpVerification().getStatus().equals("Verified");
     }
 }

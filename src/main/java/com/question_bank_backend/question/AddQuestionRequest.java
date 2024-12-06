@@ -11,7 +11,7 @@ public class AddQuestionRequest {
 
     private String question;
 
-    private SubjectEntity subject;
+    private String subjectId;
 
 
 }

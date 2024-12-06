@@ -85,7 +85,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
         superAdminEntity.setEmail(superAdminDto.getEmail());
         superAdminEntity.setPassword(bCryptPasswordEncoder.encode(superAdminDto.getPassword()));
         superAdminEntity.setName(superAdminDto.getName());
-        superAdminEntity.setPhoto(uploadedFileName);
+        superAdminEntity.setFileName(uploadedFileName);
         superAdminEntity.setPhone_No(superAdminDto.getPhone_No());
 
         OtpVerificationEntity otpVerificationEntity = new OtpVerificationEntity();
@@ -95,7 +95,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
 
         // Set both sides of the relationship
         otpVerificationEntity.setPersonEntity(superAdminEntity);
-        superAdminEntity.setOtpverification(otpVerificationEntity);
+        superAdminEntity.setOtpVerification(otpVerificationEntity);
 
         // Save the SuperAdminEntity which should cascade and save the OtpVerificationEntity
         superAdminRepository.save(superAdminEntity);
@@ -111,11 +111,11 @@ public class SuperAdminServiceImp implements SuperAdminService {
     public String verifyAccount(String email, String otp) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email " + email));
         if (superAdminEntity != null
-                && superAdminEntity.getOtpverification().getOtp().equals(otp)
-                && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+                && superAdminEntity.getOtpVerification().getOtp().equals(otp)
+                && Duration.between(superAdminEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
-            superAdminEntity.getOtpverification().setStatus("Verified");
+            superAdminEntity.getOtpVerification().setStatus("Verified");
             superAdminRepository.save(superAdminEntity);
             return "Otp verified you can login";
 
@@ -138,7 +138,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
                 throw new RuntimeException("Unable to send otp to email please try again");
             }
 
-            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             superAdminRepository.save(superAdminEntity);
@@ -159,7 +159,7 @@ public class SuperAdminServiceImp implements SuperAdminService {
             StringBuilder otp = otpUtil.generateOtp();
             String otpOutput = otp.toString();
 
-            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             superAdminRepository.save(superAdminEntity);
@@ -192,10 +192,10 @@ public class SuperAdminServiceImp implements SuperAdminService {
     @Override
     public String changePassword(String otp, String newPassword, String email) {
         SuperAdminEntity superAdminEntity = superAdminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found with this email '" + email + "' "));
-        if (superAdminEntity != null && Duration.between(superAdminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+        if (superAdminEntity != null && Duration.between(superAdminEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
-            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = superAdminEntity.getOtpVerification();
             if (!otpVerificationEntity.getOtp().equals(otp)) {
                 throw new RuntimeException("Otp doesn't match");
             }

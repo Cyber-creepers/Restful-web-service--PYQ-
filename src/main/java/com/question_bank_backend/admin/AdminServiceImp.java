@@ -84,7 +84,7 @@ public class AdminServiceImp implements AdminService {
         adminEntity.setPassword(bCryptPasswordEncoder.encode(adminDto.getPassword()));
         adminEntity.setName(adminDto.getName());
         adminEntity.setVerifiedBy(adminDto.getVerifiedBy());
-        adminEntity.setPhoto(uploadFileName);
+        adminEntity.setFileName(uploadFileName);
         adminEntity.setPhone_No(adminDto.getPhone_No());
 
         OtpVerificationEntity otpVerificationEntity = new OtpVerificationEntity();
@@ -94,7 +94,7 @@ public class AdminServiceImp implements AdminService {
 
         //set both side of the relationship
         otpVerificationEntity.setPersonEntity(adminEntity);
-        adminEntity.setOtpverification(otpVerificationEntity);
+        adminEntity.setOtpVerification(otpVerificationEntity);
 
         // Save the studentEntity which should cascade and save the OtpVerificationEntity
         adminRepository.save(adminEntity);
@@ -110,10 +110,10 @@ public class AdminServiceImp implements AdminService {
     public String verifyAccount(String email, String otp) {
         AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User withe email '" + email + "' do not exist"));
         if (adminEntity != null
-                && adminEntity.getOtpverification().getOtp().equals(otp)
-                && Duration.between(adminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() <= 60) {
+                && adminEntity.getOtpVerification().getOtp().equals(otp)
+                && Duration.between(adminEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() <= 60) {
 
-            adminEntity.getOtpverification().setStatus("Verified");
+            adminEntity.getOtpVerification().setStatus("Verified");
             adminRepository.save(adminEntity);
             return "Otp verified you can login";
         } else {
@@ -135,7 +135,7 @@ public class AdminServiceImp implements AdminService {
                 throw new RuntimeException("Unable to send Otp to email please try again");
             }
 
-            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             adminRepository.save(adminEntity);
@@ -154,7 +154,7 @@ public class AdminServiceImp implements AdminService {
             StringBuilder otp = otpUtil.generateOtp();
             String otpOutput = otp.toString();
 
-            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             adminRepository.save(adminEntity);
@@ -190,10 +190,10 @@ public class AdminServiceImp implements AdminService {
         AdminEntity adminEntity = adminRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found with this email '"+email+"' "));
 
         if (adminEntity != null
-         && Duration.between(adminEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+         && Duration.between(adminEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
 
-            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = adminEntity.getOtpVerification();
             if (!otpVerificationEntity.getOtp().equals(otp)){
                 throw new RuntimeException("Otp doesn't match");
             }

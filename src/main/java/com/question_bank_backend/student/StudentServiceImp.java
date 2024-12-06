@@ -77,7 +77,7 @@ public class StudentServiceImp implements StudentService {
         studentEntity.setEmail(studentDto.getEmail());
         studentEntity.setPassword(bCryptPasswordEncoder.encode(studentDto.getPassword()));
         studentEntity.setName(studentDto.getName());
-        studentEntity.setPhoto(uploadFileName);
+        studentEntity.setFileName(uploadFileName);
         studentEntity.setPhone_No(studentDto.getPhone_No());
 
         OtpVerificationEntity otpVerificationEntity = new OtpVerificationEntity();
@@ -87,7 +87,7 @@ public class StudentServiceImp implements StudentService {
 
         // set both side of the relationship
         otpVerificationEntity.setPersonEntity(studentEntity);
-        studentEntity.setOtpverification(otpVerificationEntity);
+        studentEntity.setOtpVerification(otpVerificationEntity);
 
         // Save the studentEntity which should cascade and save the OtpVerificationEntity
         studentRepository.save(studentEntity);
@@ -103,10 +103,10 @@ public class StudentServiceImp implements StudentService {
     @Override
     public String verifyAccount(String email, String otp) {
         StudentEntity studentEntity = studentRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User with email " + email + "' does nto exist"));
-        if (studentEntity != null && studentEntity.getOtpverification().getOtp().equals(otp)
-                && Duration.between(studentEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() <= (60)) {
+        if (studentEntity != null && studentEntity.getOtpVerification().getOtp().equals(otp)
+                && Duration.between(studentEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() <= (60)) {
 
-            studentEntity.getOtpverification().setStatus("Verified");
+            studentEntity.getOtpVerification().setStatus("Verified");
             studentRepository.save(studentEntity);
             return "Otp verified you con login";
         } else {
@@ -129,7 +129,7 @@ public class StudentServiceImp implements StudentService {
                 throw new RuntimeException("Unable to send Otp to email please try again");
             }
 
-            OtpVerificationEntity otpVerificationEntity = studentEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = studentEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             studentRepository.save(studentEntity);
@@ -149,7 +149,7 @@ public class StudentServiceImp implements StudentService {
             StringBuilder otp = otpUtil.generateOtp();
             String otpOutput = otp.toString();
 
-            OtpVerificationEntity otpVerificationEntity = studentEntity.getOtpverification();
+            OtpVerificationEntity otpVerificationEntity = studentEntity.getOtpVerification();
             otpVerificationEntity.setOtp(otpOutput);
             otpVerificationEntity.setSendTime(LocalDateTime.now());
             studentRepository.save(studentEntity);
@@ -185,9 +185,9 @@ public class StudentServiceImp implements StudentService {
     @Override
     public String changePassword(String otp, String newPassword, String email) {
         StudentEntity studentEntity = studentRepository.findByEmail(email).orElseThrow(()-> new RuntimeException("User not found with this email '"+email+"' "));
-        if (studentEntity != null  && Duration.between(studentEntity.getOtpverification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
+        if (studentEntity != null  && Duration.between(studentEntity.getOtpVerification().getSendTime(), LocalDateTime.now()).getSeconds() < (60)) {
 
-            OtpVerificationEntity otpverificationEntity = studentEntity.getOtpverification();
+            OtpVerificationEntity otpverificationEntity = studentEntity.getOtpVerification();
             if(!otpverificationEntity.getOtp().equals(otp)){
                 throw new RuntimeException("Otp doesn't match");
             }

@@ -21,8 +21,11 @@ public class QuestionEntity {
     @Column(name = "Question_Year")
     private int year;
 
-    private String question;
+    private String fileName;
 
+    private String fileType;
+
+    private String downloadUrl;
 
     @ManyToOne
     @JoinColumn(name = "subject_id")

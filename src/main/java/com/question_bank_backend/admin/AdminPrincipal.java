@@ -46,6 +46,6 @@ public class AdminPrincipal implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return adminEntity.getOtpverification().getStatus().equals("Verified");
+        return adminEntity.getOtpVerification().getStatus().equals("Verified");
     }
 }
