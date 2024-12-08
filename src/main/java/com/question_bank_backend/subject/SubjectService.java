@@ -2,8 +2,7 @@ package com.question_bank_backend.subject;
 
 import java.util.List;
 
-public interface SubjectService
-{
+public interface SubjectService {
 
     SubjectEntity addSubject(SubjectDto subjectDto);
 
@@ -19,16 +18,15 @@ public interface SubjectService
 
     List<SubjectEntity> getSubjectsBySubjectCodeAndSubjectName(String subjectCode, String subjectName);
 
-    List<SubjectEntity> getSubjectsBySubjectCode(String subjectCode);
+    SubjectEntity getSubjectsBySubjectCode(String subjectCode);
 
     List<SubjectEntity> getSubjectsBySubjectCodeAndSemester(String subjectCode, int sem);
 
-    List<SubjectEntity> getSubjectsBySemesterAndC(int sem);
+    List<SubjectEntity> getSubjectsBySemesterAndCourseShortName(int sem, String courseShortName);
 
+    List<SubjectEntity> getSubjectsBySemesterAndCourseFullName(int sem, String courseFullName);
 
-
-
-
+    Long countSubjectsBySemesterAndCourseShortName(int sem, String courseShortName);
 
 
 }

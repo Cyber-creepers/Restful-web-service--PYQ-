@@ -8,4 +8,6 @@ public interface SemesterRepository extends JpaRepository<SemesterEntity,String>
 {
 
 
+    SemesterEntity findBySemester(int semester);
+
 }

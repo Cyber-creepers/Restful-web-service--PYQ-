@@ -16,10 +16,10 @@ public class SemesterEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private String semesterId;
 
 
-    private int sem;
+    private int semester;
 
 
     @ManyToOne

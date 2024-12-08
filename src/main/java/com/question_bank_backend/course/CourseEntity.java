@@ -15,7 +15,7 @@ public class CourseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    private String courseId;
 
     private String courseFullName;
 

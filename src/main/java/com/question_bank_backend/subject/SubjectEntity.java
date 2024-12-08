@@ -4,7 +4,8 @@ package com.question_bank_backend.subject;
 import com.question_bank_backend.question.QuestionEntity;
 import com.question_bank_backend.semester.SemesterEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -16,9 +17,7 @@ public class SubjectEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
-
-
+    private String subjectId;
 
     private String subjectName;
 
@@ -30,8 +29,7 @@ public class SubjectEntity {
     private SemesterEntity semester;
 
 
-
-    @OneToMany(mappedBy = "subject",cascade =  CascadeType.ALL, orphanRemoval = true,fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "subject", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<QuestionEntity> questions;
 
     public SubjectEntity(String subjectName, String subjectCode) {
