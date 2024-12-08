@@ -1,10 +1,10 @@
 package com.question_bank_backend.admin;
 
 import com.question_bank_backend.clubs.ClubEntity;
-import com.question_bank_backend.course.CourseEntity;
 import com.question_bank_backend.person.PersonEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 

@@ -3,7 +3,8 @@ package com.question_bank_backend.course;
 
 import com.question_bank_backend.semester.SemesterEntity;
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -21,9 +22,17 @@ public class CourseEntity {
 
     private String courseShortName;
 
-
     @OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SemesterEntity> semester;
+
+    public CourseEntity(String courseFullName, String courseShortName){
+        this.courseFullName = courseFullName;
+        this.courseShortName = courseShortName;
+    }
+
+    public CourseEntity(){
+
+    }
 
 
 }

@@ -8,10 +8,11 @@ public interface CourseService
 
     CourseEntity updateCourseByCourseId(CourseDto courseDto, String courseId);
 
-    String deleteCourseByCourseId(String courseId);
+    void  deleteCourseByCourseId(String courseId);
 
     List<CourseEntity> getAllCourses();
 
     CourseEntity getCourseByCoursedId(String courseId);
+
 
 }

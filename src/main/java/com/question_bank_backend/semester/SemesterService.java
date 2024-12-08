@@ -10,7 +10,7 @@ public interface SemesterService
 
     void deleteSemesterBySemesterId(String semesterId);
 
-    SemesterEntity createSemester(SemesterDto semesterDto);
+    SemesterEntity addSemester(SemesterDto semesterDto);
 
     SemesterEntity updateSemesterBySemesterId(SemesterDto semesterDto, String semesterId);
 

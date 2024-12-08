@@ -30,5 +30,12 @@ public class SemesterEntity {
     @OneToMany(mappedBy = "semester", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<SubjectEntity> subjects;
 
+    public SemesterEntity(int semester, CourseEntity course){
+        this.semester = semester;
+        this.course = course;
+    }
+
+    public SemesterEntity(){}
+
 
 }
