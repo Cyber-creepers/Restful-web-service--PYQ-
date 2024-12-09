@@ -34,5 +34,4 @@ public interface QuestionService {
     List<QuestionEntity> getQuestionByCourseFullName(String courseFullName);
 
     List<QuestionEntity> getQuestionByCourseShortName(String courseShortName);
-
 }

@@ -2,6 +2,8 @@ package com.question_bank_backend.subject;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.question_bank_backend.course.CourseEntity;
+import com.question_bank_backend.course.CourseRepository;
 import com.question_bank_backend.course.CourseService;
 import com.question_bank_backend.exceptions.SubjectNotFoundException;
 import com.question_bank_backend.semester.SemesterEntity;
@@ -10,6 +12,7 @@ import com.question_bank_backend.semester.SemesterService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class SubjectServiceImp implements SubjectService {
@@ -19,8 +22,10 @@ public class SubjectServiceImp implements SubjectService {
     private final SemesterService semesterservice;
     private final SemesterRepository semesterRepository;
     private final CourseService courseService;
+    private final CourseRepository courseRepository;
 
-    public SubjectServiceImp(SemesterRepository semesterRepository, SubjectRepository subjectRepository, ObjectMapper objectMapper, SemesterService semesterservice, CourseService courseService) {
+    public SubjectServiceImp(CourseRepository courseRepository, SemesterRepository semesterRepository, SubjectRepository subjectRepository, ObjectMapper objectMapper, SemesterService semesterservice, CourseService courseService) {
+        this.courseRepository = courseRepository;
         this.semesterRepository = semesterRepository;
         this.subjectRepository = subjectRepository;
         this.objectMapper = objectMapper;
@@ -30,8 +35,25 @@ public class SubjectServiceImp implements SubjectService {
 
     @Override
     public SubjectEntity addSubject(SubjectDto subjectDto) {
-        return null;
+
+       /* CourseEntity courseEntity =Optional.ofNullable(courseRepository.findByCourseId(subjectDto.getSemester().getCourse().getCourseId()))
+                .orElseGet(()->{
+                    CourseEntity newCourse = new CourseEntity(subjectDto.getSemester().getCourse().getCourseFullName(),subjectDto.getSemester().getCourse().getCourseShortName());
+                    return courseRepository.save(newCourse);
+                });*/
+
+
+        SemesterEntity semesterEntity =Optional.ofNullable(semesterRepository.findBySemesterId(subjectDto.getSemester().getSemesterId()))
+                .orElseGet(()->{
+                    SemesterEntity newSemesterEntity = new SemesterEntity(subjectDto.getSemester().getSemester(),subjectDto.getSemester().getCourse().);
+                })
+
+
+
+
     }
+
+
 
     @Override
     public SubjectEntity getSubjectById(String subjectId) {

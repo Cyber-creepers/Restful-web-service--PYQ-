@@ -14,4 +14,7 @@ public interface SemesterRepository extends JpaRepository<SemesterEntity, String
 
     List<SemesterEntity> findByCourseCourseShortName(String courseShortName);
 
+    SemesterEntity findBySemesterId(String semesterId);
+
+
 }
