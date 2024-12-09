@@ -1,16 +1,20 @@
 package com.question_bank_backend.question;
 
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.exceptions.QuestionNotFoundException;
 import com.question_bank_backend.exceptions.SubjectNotFoundException;
 import com.question_bank_backend.utility.MyResponseHandler;
+import org.apache.catalina.mapper.Mapper;
+import org.apache.coyote.Response;
+import org.aspectj.weaver.patterns.TypePatternQuestions;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.FileAlreadyExistsException;
 import java.util.List;
 
 @RestController
@@ -19,8 +23,14 @@ public class QuestionController {
 
     private final QuestionService questionService;
 
-    QuestionController(QuestionService questionService) {
+    private final ObjectMapper objectMapper;
+    private final Mapper mapper;
+
+
+    QuestionController(QuestionService questionService, ObjectMapper objectMapper, Mapper mapper) {
         this.questionService = questionService;
+        this.objectMapper = objectMapper;
+        this.mapper = mapper;
     }
 
 
@@ -83,6 +93,93 @@ public class QuestionController {
             return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
         }
     }
+
+    @GetMapping("/question/by/subjectCode-year")
+    public ResponseEntity<Object> getQuestionsBySubjectCodeAndYear(@RequestParam  String subjectCode,@RequestParam int year){
+        try{
+            List<QuestionEntity> questionEntities = questionService.getQuestionBySubjectCodeAndYear(subjectCode, year);
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "found!",questionEntities);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @GetMapping("/question/by/subjectCode")
+    public ResponseEntity<Object> getQuestionsBySubjectCode(@RequestParam String subjectCode){
+        try{
+            List<QuestionEntity> questionentities = questionService.getQuestionBySubjectCode(subjectCode);
+            return MyResponseHandler.generateResponse(HttpStatus.OK,false, "found!", questionentities);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @GetMapping("/question/{year}/all")
+    public ResponseEntity<Object> getQuestionsByYear(@PathVariable int year){
+        try{
+            List<QuestionEntity> questionEntities = questionService.getQuestionByYear(year);
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "found!", questionEntities);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<Object> getAllQuestions(){
+        try{
+            List<QuestionEntity> questionEntities = questionService.getAllQuestions();
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "found!", questionEntities);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @GetMapping("/question/{id}/question")
+    public ResponseEntity<Object> getQuestionByQuestionId(@PathVariable String id){
+        try{
+            QuestionEntity question = questionService.getQuestionById(id);
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "found!", question);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @DeleteMapping("/question/{id}/delete")
+    public ResponseEntity<Object> deleteQuestionByQuestionId(@PathVariable String id){
+        try{
+            questionService.deleteQuestionById(id);
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "Deleted!", null);
+        }catch (QuestionNotFoundException e){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(), null);
+        }
+    }
+
+    @PutMapping("/question/{id}/uodate")
+    public ResponseEntity<Object> updateQuestion(@PathVariable String id, @RequestBody QuestionDto questionDto){
+        try{
+
+           QuestionEntity question = questionService.updateQuestion(questionDto, id);
+           return MyResponseHandler.generateResponse(HttpStatus.OK, false, "Updated!" , question );
+        }catch (QuestionNotFoundException e ){
+            return MyResponseHandler.generateResponse(HttpStatus.NOT_FOUND, true, e.getMessage(),null);
+        }
+    }
+
+    @PostMapping("/add")
+    public ResponseEntity<Object> addQuestion(@RequestPart MultipartFile file, @RequestPart String request) throws JsonProcessingException, FileAlreadyExistsException {
+        try{
+            QuestionEntity question = questionService.addQuestion(file, convertRequest(request));
+            return MyResponseHandler.generateResponse(HttpStatus.OK, false, "Added successfully ", question);
+        } catch (FileAlreadyExistsException | JsonProcessingException e){
+            return MyResponseHandler.generateResponse(HttpStatus.INTERNAL_SERVER_ERROR, true, e.getMessage(), null);
+        }
+    }
+
+    private AddQuestionRequest convertRequest(String request) throws JsonProcessingException {
+             return objectMapper.readValue(request, AddQuestionRequest.class);
+    }
+
+
 
 
 }

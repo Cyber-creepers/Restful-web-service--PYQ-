@@ -57,7 +57,7 @@ public class QuestionServiceImp implements QuestionService {
 
 
     @Override
-    public QuestionEntity updateQuestion(QuestionEntity question, String id) {
+    public QuestionEntity updateQuestion(QuestionDto question, String id) {
         return null;
     }
 

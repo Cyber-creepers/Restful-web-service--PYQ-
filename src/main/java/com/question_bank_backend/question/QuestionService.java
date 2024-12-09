@@ -9,7 +9,7 @@ public interface QuestionService {
 
     QuestionEntity addQuestion(MultipartFile file, AddQuestionRequest question) throws FileAlreadyExistsException;
 
-    QuestionEntity updateQuestion(QuestionEntity question, String id);
+    QuestionEntity updateQuestion(QuestionDto question, String id);
 
     QuestionEntity getQuestionById(String id);
 

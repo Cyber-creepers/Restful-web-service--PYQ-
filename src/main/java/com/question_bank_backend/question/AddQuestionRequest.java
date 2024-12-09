@@ -1,10 +1,13 @@
 package com.question_bank_backend.question;
 
 
-import com.question_bank_backend.subject.SubjectEntity;
-import lombok.Data;
+import lombok.*;
 
 @Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class AddQuestionRequest {
 
     private int year;
