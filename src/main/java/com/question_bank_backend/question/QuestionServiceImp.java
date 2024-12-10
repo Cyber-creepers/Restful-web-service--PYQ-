@@ -5,55 +5,51 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.question_bank_backend.course.CourseRepository;
 import com.question_bank_backend.exceptions.QuestionNotFoundException;
 import com.question_bank_backend.semester.SemesterRepository;
-import com.question_bank_backend.subject.SubjectEntity;
 import com.question_bank_backend.subject.SubjectRepository;
 import com.question_bank_backend.subject.SubjectService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.nio.file.FileAlreadyExistsException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class QuestionServiceImp implements QuestionService {
 
     private final QuestionRepository questionRepository;
-    private final ObjectMapper objectMapper;
+   /* private final ObjectMapper objectMapper;
     private final SubjectRepository subjectRepository;
     private final SubjectService subjectService;
     private final SemesterRepository semesterRepository;
-    private final CourseRepository courserRepository;
+    private final CourseRepository courserRepository;*/
 
     @Value("${project.questions}")
     private String path;
 
-    public QuestionServiceImp(SubjectService subjectService , QuestionRepository questionRepository, ObjectMapper objectMapper, SubjectRepository subjectRepository, SemesterRepository semesterRepository, CourseRepository courserRepository) {
+    public QuestionServiceImp(SubjectService subjectService, QuestionRepository questionRepository, ObjectMapper objectMapper, SubjectRepository subjectRepository, SemesterRepository semesterRepository, CourseRepository courserRepository) {
         this.questionRepository = questionRepository;
-        this.objectMapper = objectMapper;
+      /*  this.objectMapper = objectMapper;
         this.subjectService = subjectService;
         this.subjectRepository = subjectRepository;
         this.semesterRepository = semesterRepository;
-        this.courserRepository = courserRepository;
+        this.courserRepository = courserRepository;*/
     }
 
     @Override
-    public QuestionEntity addQuestion(MultipartFile file, AddQuestionRequest question) throws FileAlreadyExistsException {
+    public QuestionEntity addQuestion(MultipartFile file, AddQuestionRequest question) {
 
 
-        if (Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
+        /*if (Files.exists(Paths.get(path + File.separator + file.getOriginalFilename()))) {
             throw new FileAlreadyExistsException("File already exists! Please enter another file! ");
         }
 
-        SubjectEntity subject = subjectService
+        SubjectEntity subject = subjectService*/
+
+        return null;
 
 
     }
-
 
 
     @Override
@@ -101,17 +97,17 @@ public class QuestionServiceImp implements QuestionService {
 
     @Override
     public List<QuestionEntity> getQuestionBySemesterAndSubjectName(int semester, String subjectName) {
-        return questionRepository.findBySubject_Semester_SemAndSubject_SubjectName(semester, subjectName);
+        return questionRepository.findBySubject_Semester_SemesterAndSubject_SubjectName(semester, subjectName);
     }
 
     @Override
     public List<QuestionEntity> getQuestionBySemesterAndSubjectNameAndYear(int semester, String subjectName, int year) {
-        return questionRepository.findBySubject_Semester_SemAndSubject_SubjectNameAndYear(semester, subjectName, year);
+        return questionRepository.findBySubject_Semester_SemesterAndSubject_SubjectNameAndYear(semester, subjectName, year);
     }
 
     @Override
     public List<QuestionEntity> getQuestionBySemesterAndSubjectCode(int semester, String subjectCode) {
-        return questionRepository.findBySubject_Semester_SemAndSubject_SubjectCode(semester, subjectCode);
+        return questionRepository.findBySubject_Semester_SemesterAndSubject_SubjectCode(semester, subjectCode);
     }
 
     @Override

@@ -43,10 +43,12 @@ public class SubjectServiceImp implements SubjectService {
                 });*/
 
 
-        SemesterEntity semesterEntity =Optional.ofNullable(semesterRepository.findBySemesterId(subjectDto.getSemester().getSemesterId()))
+      /*  SemesterEntity semesterEntity =Optional.ofNullable(semesterRepository.findBySemesterId(subjectDto.getSemester().getSemesterId()))
                 .orElseGet(()->{
                     SemesterEntity newSemesterEntity = new SemesterEntity(subjectDto.getSemester().getSemester(),subjectDto.getSemester().getCourse().);
-                })
+                })*/
+
+        return null;
 
 
 
@@ -69,7 +71,7 @@ public class SubjectServiceImp implements SubjectService {
 
 
     // wrong implementation
-   /* @Override
+    @Override
     public SubjectEntity updateSubject(SubjectDto subjectDto, String subjectId) {
 
         return subjectRepository.findById(subjectId).
@@ -81,14 +83,14 @@ public class SubjectServiceImp implements SubjectService {
     }
 
     private SubjectEntity updateExistingSubjects(SubjectEntity existingSubjects, SubjectDto request) {
-        existingSubjects.setSubjectName(request.getSubjectName());
+       /* existingSubjects.setSubjectName(request.getSubjectName());
         existingSubjects.setSubjectCode(request.getSubjectCode());
 
         SemesterEntity semester = semesterRepository.findBySemester(request.getSemester().getSemester());
-        existingSubjects.setSemester(semester);
+        existingSubjects.setSemester(semester);*/
         return existingSubjects;
 
-    }*/
+    }
 
     @Override
     public List<SubjectEntity> getAllSubjects() {

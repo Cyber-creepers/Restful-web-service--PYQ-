@@ -19,12 +19,12 @@ public interface QuestionRepository extends JpaRepository<QuestionEntity, String
 
     List<QuestionEntity> findBySubjectSubjectNameAndYear(String subjectName, int year);
 
-    List<QuestionEntity> findBySubject_Semester_SemAndSubject_SubjectCode(int semester, String subjectCode);
+    List<QuestionEntity> findBySubject_Semester_SemesterAndSubject_SubjectCode(int semester, String subjectCode);
 
 
-    List<QuestionEntity> findBySubject_Semester_SemAndSubject_SubjectNameAndYear(int semester, String subjectName, int year);
+    List<QuestionEntity> findBySubject_Semester_SemesterAndSubject_SubjectNameAndYear(int semester, String subjectName, int year);
 
-    List<QuestionEntity> findBySubject_Semester_SemAndSubject_SubjectName(int semester, String subjectName);
+    List<QuestionEntity> findBySubject_Semester_SemesterAndSubject_SubjectName(int semester, String subjectName);
 
     List<QuestionEntity> findBySubject_Semester_Course_CourseFullName(String courseFullName);
 
